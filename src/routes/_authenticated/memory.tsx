@@ -40,8 +40,7 @@ function MemoryPage() {
 
   const add = useMutation({
     mutationFn: async () => {
-      const { data: u } = await supabase.auth.getUser();
-      const { error } = await supabase.from("memories").insert({ user_id: u.user!.id, content: content.trim(), category });
+      const { error } = await supabase.from("memories").insert({ user_id: '00000000-0000-0000-0000-000000000000', content: content.trim(), category });
       if (error) throw error;
     },
     onSuccess: () => { setContent(""); qc.invalidateQueries({ queryKey: ["memories"] }); toast.success("Saved to memory"); },

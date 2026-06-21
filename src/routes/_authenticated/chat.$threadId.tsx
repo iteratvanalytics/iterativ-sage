@@ -61,8 +61,7 @@ function ChatPage() {
 
   const send = useMutation({
     mutationFn: async (text: string) => {
-      const { data: u } = await supabase.auth.getUser();
-      const uid = u.user!.id;
+      const uid = '00000000-0000-0000-0000-000000000000';
       const { error: e1 } = await supabase.from("messages").insert({
         thread_id: threadId, user_id: uid, role: "user", content: text, parts: [{ type: "text", text }],
       });

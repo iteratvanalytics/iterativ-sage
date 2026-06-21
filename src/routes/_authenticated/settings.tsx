@@ -1,25 +1,11 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
-import { LogOut, User, Bell, Lock, Sparkles, ChevronRight, Wifi, Phone, Send, Mail, Globe, Shield, Palette, Volume2, HardDrive } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { User, Bell, ChevronRight, Wifi, Phone, Send, Mail, Shield, Palette, Volume2, HardDrive } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   component: SettingsPage,
 });
 
 function SettingsPage() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState<string>("");
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? ""));
-  }, []);
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    navigate({ to: "/auth" });
-  };
-
   return (
     <div className="px-5 pt-14">
       <h1 className="text-3xl font-semibold tracking-tight">You</h1>
@@ -27,7 +13,7 @@ function SettingsPage() {
       <div className="glass-strong rounded-3xl p-5 mt-6 flex items-center gap-4">
         <div className="w-14 h-14 rounded-full siri-orb shadow-[var(--shadow-glow)]" />
         <div className="flex-1 min-w-0">
-          <p className="font-semibold truncate">{email || "—"}</p>
+          <p className="font-semibold truncate">Dev User</p>
           <p className="text-xs text-muted-foreground">Aria Pro · Unlimited · Multi-model</p>
         </div>
       </div>
@@ -70,10 +56,6 @@ function SettingsPage() {
           ))}
         </div>
       </div>
-
-      <button onClick={signOut} className="w-full mt-6 glass rounded-2xl py-3.5 flex items-center justify-center gap-2 text-destructive active:scale-[0.99] transition-transform">
-        <LogOut className="w-4 h-4" /> Sign out
-      </button>
 
       <div className="mt-8 text-center space-y-1">
         <p className="text-[11px] text-muted-foreground">Aria v0.17.0 — The Reach Release</p>

@@ -47,9 +47,8 @@ function HomePage() {
 
   const newThread = useMutation({
     mutationFn: async (seed?: string) => {
-      const { data: u } = await supabase.auth.getUser();
       const { data, error } = await supabase.from("threads").insert({
-        user_id: u.user!.id,
+        user_id: '00000000-0000-0000-0000-000000000000',
         title: seed ? seed.slice(0, 40) : "New conversation",
       }).select().single();
       if (error) throw error;
