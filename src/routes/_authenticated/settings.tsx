@@ -14,7 +14,7 @@ function SettingsPage() {
         <div className="w-14 h-14 rounded-full siri-orb shadow-[var(--shadow-glow)]" />
         <div className="flex-1 min-w-0">
           <p className="font-semibold truncate">Dev User</p>
-          <p className="text-xs text-muted-foreground">Aria Pro · Unlimited · Multi-model</p>
+          <p className="text-xs text-muted-foreground">Sage Pro · Unlimited · Multi-model</p>
         </div>
       </div>
 
@@ -58,7 +58,7 @@ function SettingsPage() {
       </div>
 
       <div className="mt-8 text-center space-y-1">
-        <p className="text-[11px] text-muted-foreground">Aria v0.17.0 — The Reach Release</p>
+        <p className="text-[11px] text-muted-foreground">Sage v0.17.0 — The Reach Release</p>
         <p className="text-[10px] text-muted-foreground/60">Multi-model orchestration · Raft network · Background agents</p>
       </div>
     </div>

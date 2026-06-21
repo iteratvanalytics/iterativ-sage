@@ -71,7 +71,7 @@ function HomePage() {
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Online</p>
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight mt-1">Aria</h1>
+          <h1 className="text-3xl font-semibold tracking-tight mt-1">Sage</h1>
         </div>
         <button
           onClick={() => newThread.mutate(undefined)}
@@ -98,7 +98,7 @@ function HomePage() {
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Multi-model active</span>
             </div>
           </div>
-          <h2 className="text-xl font-semibold leading-tight">Ask anything.<br/>Aria will route it to the right model.</h2>
+          <h2 className="text-xl font-semibold leading-tight">Ask anything.<br/>Sage will route it to the right model.</h2>
           <p className="text-sm text-muted-foreground mt-2">Sub-agents work in the background while you keep moving.</p>
         </div>
       </button>

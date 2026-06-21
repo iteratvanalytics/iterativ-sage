@@ -73,7 +73,7 @@ function MemoryPage() {
     <div className="px-5 pt-14">
       <p className="text-xs text-muted-foreground uppercase tracking-widest">Persistent Knowledge</p>
       <h1 className="text-3xl font-semibold tracking-tight mt-1">Memory</h1>
-      <p className="text-sm text-muted-foreground mt-2">What Aria remembers about you across every conversation.</p>
+      <p className="text-sm text-muted-foreground mt-2">What Sage remembers about you across every conversation.</p>
 
       <div className="flex gap-3 mt-5">
         <div className="flex-1 glass rounded-2xl p-3 text-center">
