@@ -1,0 +1,2 @@
+- [Supabase demo mode](supabase-demo-mode.md) — client returns stub when env vars missing so UI renders without crashing
+- [Chat MessagePart types](chat-parts.md) — 9 part types: text, tool, subagent, reasoning, image, actions, consent, privacy, code, table
