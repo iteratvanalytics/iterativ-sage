@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedSkillsRouteImport } from './routes/_authenticated/skills'
+import { Route as AuthenticatedMemoryRouteImport } from './routes/_authenticated/memory'
 import { Route as AuthenticatedAgentsRouteImport } from './routes/_authenticated/agents'
 import { Route as AuthenticatedChatThreadIdRouteImport } from './routes/_authenticated/chat.$threadId'
 
@@ -35,6 +36,11 @@ const AuthenticatedSkillsRoute = AuthenticatedSkillsRouteImport.update({
   path: '/skills',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMemoryRoute = AuthenticatedMemoryRouteImport.update({
+  id: '/memory',
+  path: '/memory',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAgentsRoute = AuthenticatedAgentsRouteImport.update({
   id: '/agents',
   path: '/agents',
@@ -51,12 +57,14 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/agents': typeof AuthenticatedAgentsRoute
+  '/memory': typeof AuthenticatedMemoryRoute
   '/skills': typeof AuthenticatedSkillsRoute
   '/chat/$threadId': typeof AuthenticatedChatThreadIdRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/agents': typeof AuthenticatedAgentsRoute
+  '/memory': typeof AuthenticatedMemoryRoute
   '/skills': typeof AuthenticatedSkillsRoute
   '/': typeof AuthenticatedIndexRoute
   '/chat/$threadId': typeof AuthenticatedChatThreadIdRoute
@@ -66,20 +74,28 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/agents': typeof AuthenticatedAgentsRoute
+  '/_authenticated/memory': typeof AuthenticatedMemoryRoute
   '/_authenticated/skills': typeof AuthenticatedSkillsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/chat/$threadId': typeof AuthenticatedChatThreadIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/agents' | '/skills' | '/chat/$threadId'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/agents'
+    | '/memory'
+    | '/skills'
+    | '/chat/$threadId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/agents' | '/skills' | '/' | '/chat/$threadId'
+  to: '/auth' | '/agents' | '/memory' | '/skills' | '/' | '/chat/$threadId'
   id:
     | '__root__'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/agents'
+    | '/_authenticated/memory'
     | '/_authenticated/skills'
     | '/_authenticated/'
     | '/_authenticated/chat/$threadId'
@@ -120,6 +136,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSkillsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/memory': {
+      id: '/_authenticated/memory'
+      path: '/memory'
+      fullPath: '/memory'
+      preLoaderRoute: typeof AuthenticatedMemoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/agents': {
       id: '/_authenticated/agents'
       path: '/agents'
@@ -139,6 +162,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgentsRoute: typeof AuthenticatedAgentsRoute
+  AuthenticatedMemoryRoute: typeof AuthenticatedMemoryRoute
   AuthenticatedSkillsRoute: typeof AuthenticatedSkillsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedChatThreadIdRoute: typeof AuthenticatedChatThreadIdRoute
@@ -146,6 +170,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgentsRoute: AuthenticatedAgentsRoute,
+  AuthenticatedMemoryRoute: AuthenticatedMemoryRoute,
   AuthenticatedSkillsRoute: AuthenticatedSkillsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedChatThreadIdRoute: AuthenticatedChatThreadIdRoute,
