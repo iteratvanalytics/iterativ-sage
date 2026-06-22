@@ -1,12 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { User, Bell, ChevronRight, Wifi, Phone, Send, Mail, Shield, Palette, Volume2, HardDrive, Brain, Cpu, Bot, CircleCheck as CheckCircle2, TriangleAlert as AlertTriangle, ToggleLeft, ToggleRight, LogOut, ChevronDown, ChevronUp, Keyboard, Zap, MessageSquare, Eye, FlaskConical, Globe, Star, Circle as HelpCircle, FileText, ExternalLink, Trash2, CircleUser as UserCircle } from "lucide-react";
+import { User, Bell, ChevronRight, Wifi, Phone, Send, Mail, Shield, Palette, Volume2, HardDrive, Brain, Cpu, Bot, CircleCheck as CheckCircle2, TriangleAlert as AlertTriangle, ToggleLeft, ToggleRight, LogOut, ChevronDown, ChevronUp, Keyboard, Zap, MessageSquare, Eye, FlaskConical, Globe, Star, Circle as HelpCircle, FileText, ExternalLink, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SageLogo } from "@/components/SageLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { isSupabaseConfigured } from "@/lib/auth";
-import { useDemoMode } from "@/lib/demo-mode";
-import { DemoProfileSwitcher } from "@/components/DemoProfileSwitcher";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   component: SettingsPage,
@@ -91,8 +89,6 @@ function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
 
 function SettingsPage() {
   const navigate = useNavigate();
-  const { isDemoMode, activePersona, exitDemo } = useDemoMode();
-  const [showDemoSwitcher, setShowDemoSwitcher] = useState(false);
   const [selectedModel, setSelectedModel] = useState("auto");
   const [toggles, setToggles] = useState<Record<string, boolean>>(
     Object.fromEntries(TOGGLE_GROUPS.flatMap(g => g.toggles).map(t => [t.id, t.default]))
@@ -137,21 +133,15 @@ function SettingsPage() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
-            <p className="font-semibold truncate">{isDemoMode && activePersona ? activePersona.profile.name : "Dev User"}</p>
-            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-semibold text-primary-foreground" style={{ background: "var(--gradient-hero)" }}>{isDemoMode && activePersona ? activePersona.profile.plan : "PRO"}</span>
+            <p className="font-semibold truncate">Dev User</p>
+            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-semibold text-primary-foreground" style={{ background: "var(--gradient-hero)" }}>PRO</span>
           </div>
-          <p className="text-xs text-muted-foreground">{isDemoMode && activePersona ? activePersona.profile.role : "Unlimited · Multi-model · Background agents"}</p>
+          <p className="text-xs text-muted-foreground">Unlimited · Multi-model · Background agents</p>
           <div className="flex items-center gap-1.5 mt-1.5">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-[10px] text-emerald-400">All systems operational</span>
           </div>
         </div>
-        {isDemoMode && (
-          <div className="flex items-center gap-2 shrink-0">
-            <button onClick={() => setShowDemoSwitcher(true)} className="text-[10px] px-2 py-1 rounded-full bg-primary/20 text-primary hover:bg-primary/30 transition-colors">Switch</button>
-            <button onClick={() => { exitDemo(); toast.info("Exited demo mode"); }} className="text-[10px] px-2 py-1 rounded-full glass text-muted-foreground hover:text-foreground transition-colors">Exit</button>
-          </div>
-        )}
         <button
           onClick={signOut}
           aria-label="Sign out"
@@ -352,7 +342,6 @@ function SettingsPage() {
         <p className="text-[10px] text-muted-foreground/50">Multi-model · Raft network · Background agents</p>
         <p className="text-[10px] text-muted-foreground/50">On-device privacy · Consent ledger · POPIA/GDPR</p>
       </div>
-      {showDemoSwitcher && <DemoProfileSwitcher onClose={() => setShowDemoSwitcher(false)} />}
     </div>
   );
 }

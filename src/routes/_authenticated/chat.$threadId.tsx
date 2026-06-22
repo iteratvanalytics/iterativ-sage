@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentUserId } from "@/lib/auth";
-import { useDemoMode } from "@/lib/demo-mode";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { SageLogo } from "@/components/SageLogo";
 import { ChevronLeft, Copy, TriangleAlert as AlertTriangle } from "lucide-react";
@@ -43,10 +42,6 @@ function ChatPage() {
   const [interimText, setInterimText] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const seedConsumed = useRef(false);
-  const { isDemoMode, activePersona } = useDemoMode();
-  const isDemoThread = threadId.startsWith("demo-");
-  const demoThreadIndex = isDemoThread ? parseInt(threadId.replace("demo-", ""), 10) : -1;
-  const demoThread = isDemoMode && activePersona && demoThreadIndex >= 0 ? activePersona.threads[demoThreadIndex] : null;
 
   const { speak, stop: stopTTS, speaking } = useTTS({ rate: 1.05, pitch: 1 });
 
@@ -64,9 +59,6 @@ function ChatPage() {
   const { data: thread } = useQuery({
     queryKey: ["thread", threadId],
     queryFn: async () => {
-      if (isDemoThread) {
-        return { id: threadId, title: demoThread?.title ?? "Demo chat", user_id: "demo", created_at: new Date().toISOString() };
-      }
       const { data, error } = await supabase.from("threads").select("*").eq("id", threadId).maybeSingle();
       if (error) throw error;
       return data;
@@ -80,17 +72,6 @@ function ChatPage() {
   } = useQuery({
     queryKey: ["messages", threadId],
     queryFn: async () => {
-      if (isDemoThread && demoThread) {
-        return demoThread.messages.map((m, i) => ({
-          id: `demo-msg-${i}`,
-          thread_id: threadId,
-          user_id: "demo",
-          role: m.role,
-          content: m.content,
-          parts: [{ type: "text", text: m.content }],
-          created_at: new Date().toISOString(),
-        })) as unknown as Msg[];
-      }
       const { data, error } = await supabase.from("messages").select("*").eq("thread_id", threadId).order("created_at");
       if (error) throw error;
       return data as unknown as Msg[];
@@ -103,10 +84,6 @@ function ChatPage() {
 
   const send = useMutation({
     mutationFn: async (text: string) => {
-      if (isDemoThread) {
-        toast.info("This is a demo conversation — read only. Start a new chat to try Sage.");
-        return;
-      }
       const uid = await getCurrentUserId();
       const { error: e1 } = await supabase.from("messages").insert({
         thread_id: threadId, user_id: uid, role: "user", content: text, parts: [{ type: "text", text }],
@@ -200,9 +177,6 @@ function ChatPage() {
               <SageLogo size={14} className="text-primary" />
             </div>
             <p className="font-semibold truncate text-sm">{thread?.title ?? "New chat"}</p>
-            {isDemoThread && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-medium shrink-0">Demo</span>
-            )}
           </div>
           <div className="flex items-center gap-1.5 mt-0.5">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
