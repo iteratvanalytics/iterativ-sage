@@ -3,22 +3,23 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Plus, Search, Sparkles, Globe, Mail, Calendar, Image, MessageSquare,
-  Zap, Bot, Brain, Shield, ArrowRight, ChevronRight, Mic
+  Zap, Bot, Brain, Shield, ArrowRight, ChevronRight, Mic, Video
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { NotificationCenter } from "@/components/NotificationCenter";
+import { MeetingAgentSheet } from "@/components/MeetingAgentSheet";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: HomePage,
 });
 
 const QUICK_ACTIONS = [
-  { label: "Deep Research", icon: Globe,        color: "bg-emerald-500/20 text-emerald-400", prompt: "Research my top 3 competitors and draft a one-page brief" },
+  { label: "Join Meeting",  icon: Video,         color: "bg-primary/20 text-primary",         prompt: null, meeting: true },
+  { label: "Deep Research", icon: Globe,         color: "bg-emerald-500/20 text-emerald-400", prompt: "Research my top 3 competitors and draft a one-page brief" },
   { label: "Email Draft",   icon: Mail,          color: "bg-rose-500/20 text-rose-400",       prompt: "Summarize my unread email and draft replies" },
   { label: "Schedule",      icon: Calendar,      color: "bg-cyan-500/20 text-cyan-400",       prompt: "Find the best meeting slot this week" },
-  { label: "Image Studio",  icon: Image,         color: "bg-fuchsia-500/20 text-fuchsia-400", prompt: "Generate a hero image for my deck" },
   { label: "Message",       icon: MessageSquare, color: "bg-green-500/20 text-green-400",     prompt: "Send a message via iMessage or WhatsApp" },
   { label: "Workflow",      icon: Zap,           color: "bg-amber-500/20 text-amber-400",     prompt: "Build me a custom skill: summarise my week every Friday" },
 ];
@@ -47,6 +48,7 @@ function HomePage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [q, setQ] = useState("");
+  const [showMeetingAgent, setShowMeetingAgent] = useState(false);
 
   const { data: threads = [] } = useQuery({
     queryKey: ["threads"],
@@ -154,13 +156,14 @@ function HomePage() {
           {QUICK_ACTIONS.map(s => (
             <button
               key={s.label}
-              onClick={() => newThread.mutate(s.prompt)}
-              className="glass rounded-2xl p-3 text-center active:scale-95 transition-transform"
+              onClick={() => s.meeting ? setShowMeetingAgent(true) : newThread.mutate(s.prompt!)}
+              className={`glass rounded-2xl p-3 text-center active:scale-95 transition-transform ${s.meeting ? "ring-1 ring-primary/20" : ""}`}
             >
               <div className={`w-9 h-9 rounded-xl ${s.color} flex items-center justify-center mx-auto mb-2`}>
                 <s.icon className="w-4 h-4" />
               </div>
               <p className="text-[10px] text-muted-foreground leading-tight">{s.label}</p>
+              {s.meeting && <div className="w-1 h-1 rounded-full bg-primary mx-auto mt-1" />}
             </button>
           ))}
         </div>
@@ -264,6 +267,8 @@ function HomePage() {
           </li>
         ))}
       </ul>
+
+      {showMeetingAgent && <MeetingAgentSheet onClose={() => setShowMeetingAgent(false)} />}
     </div>
   );
 }

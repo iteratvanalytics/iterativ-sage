@@ -3,8 +3,9 @@ import { useState } from "react";
 import {
   Bot, CircleCheck as CheckCircle2, Loader as Loader2, Clock, Pause,
   Play, Trash2, Plus, ChevronDown, ChevronUp, Zap, Cpu, Globe,
-  Mail, Brain, Terminal, Shield, X
+  Mail, Brain, Terminal, Shield, X, Video
 } from "lucide-react";
+import { MeetingAgentSheet } from "@/components/MeetingAgentSheet";
 
 export const Route = createFileRoute("/_authenticated/agents")({
   component: AgentsPage,
@@ -95,7 +96,8 @@ const INITIAL_RUNS: AgentRun[] = [
 ];
 
 const WORKFLOW_TEMPLATES = [
-  { icon: Mail,     label: "Inbox Triage",          prompt: "Sort & draft replies for all email since 7am" },
+  { icon: Video,    label: "Attend Meeting",         prompt: "Join a virtual meeting on my behalf and send me a summary" },
+  { icon: Mail,     label: "Inbox Triage",           prompt: "Sort & draft replies for all email since 7am" },
   { icon: Globe,    label: "Competitor Watch",       prompt: "Monitor my top 5 competitor sites and alert on changes" },
   { icon: Brain,    label: "Weekly Digest",          prompt: "Summarise my week's notes into a status update every Friday" },
   { icon: Terminal, label: "Code Review",            prompt: "Review all open PRs and flag regressions" },
@@ -115,6 +117,7 @@ function AgentsPage() {
   const [filter, setFilter] = useState<RunStatus | "all">("all");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [showNewModal, setShowNewModal] = useState(false);
+  const [showMeetingAgent, setShowMeetingAgent] = useState(false);
 
   const toggleStatus = (id: string) => {
     setRuns(prev => prev.map(r => {
@@ -153,6 +156,35 @@ function AgentsPage() {
       <p className="text-xs text-muted-foreground uppercase tracking-widest">Autonomous Workflows</p>
       <h1 className="text-3xl font-semibold tracking-tight mt-1">Orchestrator</h1>
       <p className="text-sm text-muted-foreground mt-2">Long-running and scheduled agents — even while you're offline.</p>
+
+      {/* Attend Meeting CTA */}
+      <button
+        onClick={() => setShowMeetingAgent(true)}
+        className="w-full mt-5 rounded-3xl p-4 text-left relative overflow-hidden active:scale-[0.99] transition-transform shadow-[var(--shadow-elevated)]"
+        style={{ background: "var(--gradient-card)" }}
+      >
+        <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full opacity-50 siri-orb" />
+        <div className="relative flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-primary/20 backdrop-blur flex items-center justify-center shrink-0">
+            <Video className="w-6 h-6 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <p className="font-semibold">Attend a meeting for me</p>
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-400/20 text-emerald-400 font-semibold">NEW</span>
+            </div>
+            <p className="text-[12px] text-muted-foreground leading-snug">Sage joins as a silent observer — transcribes, extracts decisions & action items, then briefs you.</p>
+          </div>
+          <div className="w-8 h-8 rounded-full glass flex items-center justify-center shrink-0">
+            <ChevronUp className="w-4 h-4 rotate-90" />
+          </div>
+        </div>
+        <div className="relative flex items-center gap-4 mt-3 pt-3 border-t border-white/5">
+          {["Zoom", "Google Meet", "Teams", "Webex"].map(p => (
+            <span key={p} className="text-[10px] text-muted-foreground/60">{p}</span>
+          ))}
+        </div>
+      </button>
 
       {/* Stats */}
       <div className="flex gap-3 mt-5">
@@ -293,6 +325,9 @@ function AgentsPage() {
         <Plus className="w-4 h-4" />
         New workflow
       </button>
+
+      {/* Meeting Agent Sheet */}
+      {showMeetingAgent && <MeetingAgentSheet onClose={() => setShowMeetingAgent(false)} />}
 
       {/* New workflow modal */}
       {showNewModal && (

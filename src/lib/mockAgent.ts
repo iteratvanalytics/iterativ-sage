@@ -337,6 +337,30 @@ export function parseConfig(raw: unknown): Config {
     }),
   },
 
+  // ─── Virtual meeting attendance ──────────────────────────────────────────────
+  {
+    match: /join.*meeting|attend.*meeting|meeting.*behalf|meeting.*link|zoom|google meet|teams.*meeting|webex|sit in.*meeting|cover.*meeting/i,
+    reply: () => ({
+      text: "I can attend that meeting as a silent observer — transcribing, capturing decisions and action items, then briefing you when it's done. No mic, no camera, nothing sent without your approval.",
+      parts: [
+        { type: "privacy", routing: "on-device", note: "Audio transcription runs entirely on-device. Nothing from the meeting is uploaded — only your post-meeting summary draft." },
+        { type: "reasoning", steps: [
+          "Verified platform URL — will join as named observer (participants see 'Sage (Observer)')",
+          "On-device STT engine ready — no audio sent to cloud",
+          "Post-meeting: decisions + action items extracted, follow-up email drafted for your review",
+          "Nothing sent until you explicitly authorise",
+        ], status: "done" },
+        { type: "consent", action: "Join meeting as silent observer", detail: "Sage joins with no mic/camera. Transcribes locally. Sends nothing without your approval.", channel: "Meeting platform", reversible: true },
+        { type: "actions", chips: [
+          { label: "Open Meeting Agent", primary: true },
+          { label: "Schedule for later" },
+          { label: "Just take notes" },
+          { label: "Brief me after" },
+        ]},
+      ],
+    }),
+  },
+
   // ─── Build custom skill ──────────────────────────────────────────────────────
   {
     match: /make.*skill|build.*skill|create.*workflow|custom.*automation|every.*friday|weekly.*skill/i,
