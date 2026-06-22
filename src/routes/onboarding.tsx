@@ -6,6 +6,7 @@ import {
   Smartphone, Lock, Eye, ArrowRight, Mic
 } from "lucide-react";
 import { toast } from "sonner";
+import { SageLogo } from "@/components/SageLogo";
 
 export const Route = createFileRoute("/onboarding")({
   component: OnboardingPage,
