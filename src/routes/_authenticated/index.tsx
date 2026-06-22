@@ -113,8 +113,7 @@ function HomePage() {
 
   const visibleThreads = filtered.slice(0, visible);
 
-  // In demo mode the threads come from the persona, so don't gate on the real query.
-  if (isLoading && !isDemoMode) return <HomeSkeleton />;
+  if (isLoading) return <HomeSkeleton />;
 
   return (
     <div className="px-5 pt-14 pb-8">
@@ -286,7 +285,7 @@ function HomePage() {
       {/* Conversations */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-[10px] text-muted-foreground uppercase tracking-wider">Conversations</h3>
-        <span className="text-[10px] text-muted-foreground">{displayThreads.length}</span>
+        <span className="text-[10px] text-muted-foreground">{threads.length}</span>
       </div>
       <div className="relative mb-3">
         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
@@ -308,7 +307,7 @@ function HomePage() {
         )}
       </div>
 
-      {isError && !isDemoMode && (
+      {isError && (
         <div className="glass rounded-2xl p-4 flex items-center gap-3 text-sm mb-3">
           <AlertTriangle className="w-4 h-4 text-destructive shrink-0" aria-hidden="true" />
           <span className="flex-1 text-muted-foreground">Couldn't load conversations.</span>

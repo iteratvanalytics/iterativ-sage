@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Sparkles, Zap, Globe, Shield, Bot, ChevronRight, CircleCheck as CheckCircle2, Clock, TriangleAlert as AlertTriangle, Mail, Calendar, Terminal, Plane, Receipt, BookOpen, Palette } from "lucide-react";
+import { Sparkles, Zap, Globe, Shield, Bot, ChevronRight, CircleCheck as CheckCircle2, Clock, TriangleAlert as AlertTriangle } from "lucide-react";
 import { SkillsSkeleton } from "@/components/SkeletonScreen";
 import { useDemoMode } from "@/lib/demo-mode";
 
@@ -9,21 +9,13 @@ export const Route = createFileRoute("/_authenticated/skills")({
   component: SkillsPage,
 });
 
-// Icon lookup by skill id — works for both the default skills and persona
-// skills (persona data carries no icon component, only an id).
-const SKILL_ICONS: Record<string, typeof Sparkles> = {
-  meeting: Zap, research: Globe, email: Mail, agent: Bot, privacy: Shield,
-  custom: Sparkles, code: Terminal, creative: Palette, expense: Receipt,
-  schedule: Calendar, sermon: BookOpen, travel: Plane,
-};
-
 const SKILLS = [
-  { id: "meeting", name: "Meeting Capture", desc: "Auto-transcribe meetings & extract action items", status: "installed" as const, color: "bg-emerald-500/20 text-emerald-400" },
-  { id: "research", name: "Deep Research", desc: "Multi-source research with citations", status: "connected" as const, color: "bg-primary/20 text-primary" },
-  { id: "email", name: "Email Triage", desc: "Auto-classify, draft replies, schedule sends", status: "installed" as const, color: "bg-rose-500/20 text-rose-400" },
-  { id: "agent", name: "Agent Orchestrator", desc: "Spawn & monitor background sub-agents", status: "pending" as const, color: "bg-amber-500/20 text-amber-400" },
-  { id: "privacy", name: "Privacy Audit", desc: "Scan & prune data access, audit logs", status: "installed" as const, color: "bg-cyan-500/20 text-cyan-400" },
-  { id: "custom", name: "Custom Skill", desc: "Build your own with natural language", status: "available" as const, color: "bg-muted text-muted-foreground" },
+  { id: "meeting", name: "Meeting Capture", desc: "Auto-transcribe meetings & extract action items", icon: Zap, status: "installed" as const, color: "bg-emerald-500/20 text-emerald-400" },
+  { id: "research", name: "Deep Research", desc: "Multi-source research with citations", icon: Globe, status: "connected" as const, color: "bg-primary/20 text-primary" },
+  { id: "email", name: "Email Triage", desc: "Auto-classify, draft replies, schedule sends", icon: Sparkles, status: "installed" as const, color: "bg-rose-500/20 text-rose-400" },
+  { id: "agent", name: "Agent Orchestrator", desc: "Spawn & monitor background sub-agents", icon: Bot, status: "pending" as const, color: "bg-amber-500/20 text-amber-400" },
+  { id: "privacy", name: "Privacy Audit", desc: "Scan & prune data access, audit logs", icon: Shield, status: "installed" as const, color: "bg-cyan-500/20 text-cyan-400" },
+  { id: "custom", name: "Custom Skill", desc: "Build your own with natural language", icon: Sparkles, status: "available" as const, color: "bg-muted text-muted-foreground" },
 ];
 
 function SkillsPage() {
@@ -33,13 +25,8 @@ function SkillsPage() {
   const [isLoading] = useState(false); // Replace with real query later
 
   const displaySkills = isDemoMode ? personaSkills : skills;
-  const activeCount = displaySkills.filter(s => s.status === "installed" || s.status === "connected").length;
 
   const toggle = (id: string) => {
-    if (isDemoMode) {
-      toast.info("Demo mode — read only. Exit demo to manage skills.");
-      return;
-    }
     setSkills(prev => prev.map(s => {
       if (s.id !== id) return s;
       if (s.status === "available") return { ...s, status: "installed" as const };
@@ -55,14 +42,14 @@ function SkillsPage() {
     <div className="px-5 pt-14 pb-8">
       <div className="flex items-center gap-2 mb-1">
         <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-        <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{activeCount} active</p>
+        <p className="text-[10px] text-muted-foreground uppercase tracking-widest">4 active</p>
       </div>
       <h1 className="text-3xl font-semibold tracking-tight mt-1">Skills Hub</h1>
       <p className="text-sm text-muted-foreground mt-2">Reusable workflows that program Sage's behavior across your software stack.</p>
 
       <div className="grid grid-cols-2 gap-2 mt-6">
         {displaySkills.map(s => {
-          const Icon = SKILL_ICONS[s.id] ?? Sparkles;
+          const Icon = s.icon;
           const installed = s.status === "installed" || s.status === "connected";
           return (
             <button
