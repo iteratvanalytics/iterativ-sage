@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getCurrentUserId } from "@/lib/auth";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { Brain, Plus, Trash2, Search, Sparkles, Shield, Download, User, Briefcase, Zap, BookOpen, Settings, TriangleAlert as AlertTriangle, ChevronDown, ChevronUp, Pencil, Check, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -55,8 +56,8 @@ function MemoryPage() {
   const { data: memories = [], isLoading } = useQuery({
     queryKey: ["memories"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data, error } = await supabase.from("memories").select("*").eq("user_id", user?.id ?? "00000000-0000-0000-0000-000000000000").order("created_at", { ascending: false });
+      const uid = await getCurrentUserId();
+      const { data, error } = await supabase.from("memories").select("*").eq("user_id", uid).order("created_at", { ascending: false });
       if (error) throw error;
       return data as MemoryRow[];
     },
@@ -64,9 +65,9 @@ function MemoryPage() {
 
   const add = useMutation({
     mutationFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const uid = await getCurrentUserId();
       const { error } = await supabase.from("memories").insert({
-        user_id: user?.id ?? "00000000-0000-0000-0000-000000000000",
+        user_id: uid,
         content: content.trim(), category,
       });
       if (error) throw error;
@@ -108,9 +109,10 @@ function MemoryPage() {
 
   const seedMemories = useMutation({
     mutationFn: async () => {
+      const uid = await getCurrentUserId();
       for (const m of SEED_MEMORIES) {
         await supabase.from("memories").insert({
-          user_id: '00000000-0000-0000-0000-000000000000',
+          user_id: uid,
           content: m.content, category: m.category,
         });
       }
