@@ -7,9 +7,10 @@ import {
   Image as ImageIcon, Brain, Bot, Loader as Loader2, Cpu, Zap, Wifi,
   Terminal, CircleCheck as CheckCircle2, Shield, AlertTriangle, Copy,
   RotateCcw, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, Lock,
-  Cloud, Smartphone, MicOff
+  Cloud, Smartphone, MicOff, Volume2
 } from "lucide-react";
 import { mockReply, makeThreadTitle, type MessagePart } from "@/lib/mockAgent";
+import { useVoiceInput, useTTS } from "@/hooks/useVoiceInput";
 import { toast } from "sonner";
 import { z } from "zod";
 import type React from "react";
@@ -37,11 +38,25 @@ function ChatPage() {
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const [showReasoning, setShowReasoning] = useState<string | null>(null);
-  const [voiceActive, setVoiceActive] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [ttsEnabled, setTtsEnabled] = useState(() => localStorage.getItem("sage_tts") !== "off");
+  const [interimText, setInterimText] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const seedConsumed = useRef(false);
+
+  const { speak, stop: stopTTS, speaking } = useTTS({ rate: 1.05, pitch: 1 });
+
+  const submitRef = useRef<(text: string) => void>(() => {});
+
+  const voice = useVoiceInput({
+    onTranscript: (text) => {
+      setInterimText("");
+      setInput("");
+      submitRef.current(text);
+    },
+    onInterim: (text) => setInterimText(text),
+  });
 
   const { data: thread } = useQuery({
     queryKey: ["thread", threadId],
@@ -89,6 +104,11 @@ function ChatPage() {
       setThinking(false);
       qc.invalidateQueries({ queryKey: ["messages", threadId] });
       qc.invalidateQueries({ queryKey: ["threads"] });
+      // TTS readback if enabled
+      if (ttsEnabled) {
+        const textParts = reply.parts.filter(p => p.type === "text").map(p => (p as { type: "text"; text: string }).text).join(" ");
+        if (textParts) speak(textParts);
+      }
     },
     onError: (e: Error) => { setThinking(false); toast.error(e.message); },
   });
@@ -101,12 +121,16 @@ function ChatPage() {
     }
   }, [seed, messages.length, send, navigate, threadId]);
 
-  const submit = (text: string) => {
+  const submit = useCallback((text: string) => {
     const v = text.trim();
     if (!v || send.isPending) return;
     setInput("");
+    setInterimText("");
     send.mutate(v);
-  };
+  }, [send]);
+
+  // Keep submitRef in sync so voice callback can call the latest version
+  useEffect(() => { submitRef.current = submit; }, [submit]);
 
   const copyMessage = (content: string, id: string) => {
     navigator.clipboard.writeText(content).then(() => {
@@ -183,6 +207,17 @@ function ChatPage() {
             placeholder="Ask, delegate, or kick off a workflow…"
             className="flex-1 bg-transparent resize-none outline-none px-3 py-2 text-[15px] placeholder:text-muted-foreground max-h-32 leading-snug"
           />
+          {/* TTS stop button when speaking */}
+          {speaking && (
+            <button
+              type="button"
+              onClick={stopTTS}
+              className="w-8 h-8 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center shrink-0 active:scale-90 transition-transform"
+              title="Stop speaking"
+            >
+              <Volume2 className="w-4 h-4" />
+            </button>
+          )}
           {input.trim() ? (
             <button
               type="submit"
@@ -195,32 +230,53 @@ function ChatPage() {
           ) : (
             <button
               type="button"
-              onClick={() => setVoiceActive(v => !v)}
-              className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 active:scale-95 transition-all ${voiceActive ? "bg-rose-500/30 text-rose-400" : "glass"}`}
+              onClick={() => {
+                if (!voice.supported) { toast.error("Voice input not supported in this browser"); return; }
+                voice.toggle();
+              }}
+              className={`relative w-10 h-10 rounded-full flex items-center justify-center shrink-0 active:scale-95 transition-all ${voice.isListening ? "bg-rose-500/30 text-rose-400" : "glass"}`}
             >
-              {voiceActive
-                ? <MicOff className="w-5 h-5" />
-                : <Mic className="w-5 h-5" />}
-              {voiceActive && (
-                <span className="absolute w-10 h-10 rounded-full border border-rose-400/50 animate-ping" />
+              {voice.isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+              {voice.isListening && (
+                <span className="absolute inset-0 rounded-full border border-rose-400/50 animate-ping pointer-events-none" />
               )}
             </button>
           )}
         </div>
-        {voiceActive && (
+        {/* Live voice feedback */}
+        {voice.isListening && (
           <div className="mt-2 glass rounded-2xl px-4 py-2.5 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
             <div className="flex gap-0.5 items-end h-4">
               {[3,5,7,4,6,3,8,5,4].map((h, i) => (
                 <div
                   key={i}
-                  className="w-0.5 bg-rose-400 rounded-full animate-pulse"
-                  style={{ height: `${h * 2}px`, animationDelay: `${i * 80}ms` }}
+                  className="w-0.5 bg-rose-400 rounded-full"
+                  style={{ height: `${h * 2}px`, animation: `thinking-bounce 1.2s infinite ease-in-out`, animationDelay: `${i * 80}ms` }}
                 />
               ))}
             </div>
-            <span className="text-xs text-muted-foreground">Listening… tap mic to stop</span>
+            <span className="text-xs text-muted-foreground flex-1 truncate">
+              {interimText || "Listening… tap mic to stop"}
+            </span>
           </div>
         )}
+        {/* TTS toggle pill */}
+        <div className="flex justify-end mt-1">
+          <button
+            type="button"
+            onClick={() => {
+              const next = !ttsEnabled;
+              setTtsEnabled(next);
+              localStorage.setItem("sage_tts", next ? "on" : "off");
+              if (!next) stopTTS();
+              toast.success(next ? "Voice readback on" : "Voice readback off");
+            }}
+            className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] transition-all ${ttsEnabled ? "text-amber-400 bg-amber-400/10" : "text-muted-foreground/40 bg-transparent"}`}
+          >
+            <Volume2 className="w-2.5 h-2.5" />
+            {ttsEnabled ? "Readback on" : "Readback off"}
+          </button>
+        </div>
       </form>
     </div>
   );
@@ -359,7 +415,7 @@ function MessageBubble({
 const toolIcons: Record<string, typeof Globe> = {
   web: Globe, gmail: Mail, calendar: Calendar, image: ImageIcon,
   memory: Brain, reason: Sparkles, imessage: Wifi, slack: Wrench,
-  code: Terminal,
+  code: Terminal, volume: Volume2,
 };
 const toolColors: Record<string, string> = {
   web: "text-emerald-400", gmail: "text-rose-400", calendar: "text-cyan-400",
