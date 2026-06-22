@@ -3,9 +3,11 @@ import { useState } from "react";
 import {
   Bot, CircleCheck as CheckCircle2, Loader as Loader2, Clock, Pause,
   Play, Trash2, Plus, ChevronDown, ChevronUp, Zap, Cpu, Globe,
-  Mail, Brain, Terminal, Shield, X, Video
+  Mail, Brain, Terminal, Shield, X, Video, Check
 } from "lucide-react";
 import { MeetingAgentSheet } from "@/components/MeetingAgentSheet";
+import { AgentsSkeleton } from "@/components/SkeletonScreen";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/agents")({
   component: AgentsPage,
@@ -118,6 +120,7 @@ function AgentsPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [showNewModal, setShowNewModal] = useState(false);
   const [showMeetingAgent, setShowMeetingAgent] = useState(false);
+  const [isLoading] = useState(false);
 
   const toggleStatus = (id: string) => {
     setRuns(prev => prev.map(r => {
@@ -128,7 +131,15 @@ function AgentsPage() {
     }));
   };
 
-  const deleteRun = (id: string) => setRuns(prev => prev.filter(r => r.id !== id));
+  const deleteRun = (id: string) => {
+    setRuns(prev => prev.filter(r => r.id !== id));
+    toast.success("Workflow deleted", {
+      action: { label: "Undo", onClick: () => {
+        const restored = INITIAL_RUNS.find(r => r.id === id);
+        if (restored) setRuns(p => [restored, ...p]);
+      }},
+    });
+  };
 
   const addRun = (template: typeof WORKFLOW_TEMPLATES[0]) => {
     const newRun: AgentRun = {
@@ -144,12 +155,15 @@ function AgentsPage() {
     };
     setRuns(prev => [newRun, ...prev]);
     setShowNewModal(false);
+    toast.success("Workflow started");
   };
 
   const filtered = filter === "all" ? runs : runs.filter(r => r.status === filter);
   const running   = runs.filter(r => r.status === "running").length;
   const scheduled = runs.filter(r => r.status === "scheduled").length;
   const done      = runs.filter(r => r.status === "done").length;
+
+  if (isLoading) return <AgentsSkeleton />;
 
   return (
     <div className="px-5 pt-14 pb-8">
@@ -160,7 +174,7 @@ function AgentsPage() {
       {/* Attend Meeting CTA */}
       <button
         onClick={() => setShowMeetingAgent(true)}
-        className="w-full mt-5 rounded-3xl p-4 text-left relative overflow-hidden active:scale-[0.99] transition-transform shadow-[var(--shadow-elevated)]"
+        className="w-full mt-5 rounded-3xl p-4 text-left relative overflow-hidden active:scale-[0.99] transition-transform shadow-[var(--shadow-elevated)] hover:brightness-105"
         style={{ background: "var(--gradient-card)" }}
       >
         <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full opacity-50" style={{ background: 'var(--gradient-orb)' }} />
@@ -188,15 +202,15 @@ function AgentsPage() {
 
       {/* Stats */}
       <div className="flex gap-3 mt-5">
-        <div className="flex-1 glass rounded-2xl p-3 text-center">
+        <div className="flex-1 glass rounded-2xl p-3 text-center active:scale-[0.98] transition-transform hover:bg-white/[3%]">
           <p className="text-2xl font-bold text-primary">{running}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Running</p>
         </div>
-        <div className="flex-1 glass rounded-2xl p-3 text-center">
+        <div className="flex-1 glass rounded-2xl p-3 text-center active:scale-[0.98] transition-transform hover:bg-white/[3%]">
           <p className="text-2xl font-bold text-amber-400">{scheduled}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Scheduled</p>
         </div>
-        <div className="flex-1 glass rounded-2xl p-3 text-center">
+        <div className="flex-1 glass rounded-2xl p-3 text-center active:scale-[0.98] transition-transform hover:bg-white/[3%]">
           <p className="text-2xl font-bold text-emerald-400">{done}</p>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Completed</p>
         </div>
@@ -208,7 +222,7 @@ function AgentsPage() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-full text-[11px] font-medium capitalize whitespace-nowrap transition-all ${filter === f ? "bg-primary text-primary-foreground" : "glass text-muted-foreground"}`}
+            className={`px-3 py-1.5 rounded-full text-[11px] font-medium capitalize whitespace-nowrap transition-all duration-200 ${filter === f ? "bg-primary text-primary-foreground shadow-sm" : "glass text-muted-foreground hover:text-foreground hover:bg-white/[3%]"}`}
           >
             {f}
           </button>
@@ -217,13 +231,20 @@ function AgentsPage() {
 
       {/* Agent cards */}
       <div className="mt-4 space-y-3">
+        {filtered.length === 0 && (
+          <div className="text-center py-12">
+            <Bot className="w-10 h-10 text-muted-foreground/20 mx-auto mb-3" />
+            <p className="text-sm font-medium text-muted-foreground">No workflows found</p>
+            <p className="text-xs text-muted-foreground/60 mt-1">Try a different filter or create a new one</p>
+          </div>
+        )}
         {filtered.map(r => {
           const S = STATUS_META[r.status];
           const Icon = S.icon;
           const isExpanded = expanded === r.id;
 
           return (
-            <div key={r.id} className="glass rounded-2xl overflow-hidden">
+            <div key={r.id} className="glass rounded-2xl overflow-hidden hover:bg-white/[3%] transition-colors">
               {/* Progress bar */}
               {r.status === "running" && (
                 <div className="h-[2px] bg-muted overflow-hidden">
@@ -246,14 +267,16 @@ function AgentsPage() {
                         {(r.status === "running" || r.status === "paused") && (
                           <button
                             onClick={() => toggleStatus(r.id)}
-                            className="w-6 h-6 rounded-full glass flex items-center justify-center active:scale-90 transition-transform"
+                            aria-label={r.status === "paused" ? "Resume" : "Pause"}
+                            className="w-6 h-6 rounded-full glass flex items-center justify-center active:scale-90 transition-transform hover:bg-white/10"
                           >
                             {r.status === "paused" ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
                           </button>
                         )}
                         <button
                           onClick={() => deleteRun(r.id)}
-                          className="w-6 h-6 rounded-full glass flex items-center justify-center text-destructive active:scale-90 transition-transform"
+                          aria-label="Delete workflow"
+                          className="w-6 h-6 rounded-full glass flex items-center justify-center text-destructive active:scale-90 transition-transform hover:bg-white/10"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
@@ -320,7 +343,7 @@ function AgentsPage() {
       {/* New workflow button */}
       <button
         onClick={() => setShowNewModal(true)}
-        className="w-full mt-4 glass rounded-2xl py-3.5 flex items-center justify-center gap-2 text-muted-foreground active:scale-[0.99] transition-transform hover:text-foreground"
+        className="w-full mt-4 glass rounded-2xl py-3.5 flex items-center justify-center gap-2 text-muted-foreground active:scale-[0.99] transition-transform hover:text-foreground hover:bg-white/[3%]"
       >
         <Plus className="w-4 h-4" />
         New workflow
@@ -341,7 +364,8 @@ function AgentsPage() {
               </div>
               <button
                 onClick={() => setShowNewModal(false)}
-                className="w-8 h-8 rounded-full glass flex items-center justify-center active:scale-90 transition-transform"
+                aria-label="Close modal"
+                className="w-8 h-8 rounded-full glass flex items-center justify-center active:scale-90 transition-transform hover:bg-white/10"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -351,7 +375,7 @@ function AgentsPage() {
                 <button
                   key={t.label}
                   onClick={() => addRun(t)}
-                  className="glass rounded-2xl p-3.5 text-left active:scale-[0.98] transition-transform"
+                  className="glass rounded-2xl p-3.5 text-left active:scale-[0.98] transition-transform hover:bg-white/[3%]"
                 >
                   <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center mb-2.5">
                     <t.icon className="w-4 h-4 text-primary" />

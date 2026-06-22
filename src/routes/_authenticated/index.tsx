@@ -11,6 +11,9 @@ import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { MeetingAgentSheet } from "@/components/MeetingAgentSheet";
+import { HomeSkeleton } from "@/components/SkeletonScreen";
+import { relativeTime } from "@/lib/time";
+import { X } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: HomePage,
@@ -51,10 +54,11 @@ function HomePage() {
   const [q, setQ] = useState("");
   const [showMeetingAgent, setShowMeetingAgent] = useState(false);
 
-  const { data: threads = [] } = useQuery({
+  const { data: threads = [], isLoading } = useQuery({
     queryKey: ["threads"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("threads").select("*").order("updated_at", { ascending: false });
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error } = await supabase.from("threads").select("*").eq("user_id", user?.id ?? "00000000-0000-0000-0000-000000000000").order("updated_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -237,8 +241,17 @@ function HomePage() {
           value={q}
           onChange={e => setQ(e.target.value)}
           placeholder="Search conversations"
-          className="h-10 rounded-2xl glass border-0 pl-9"
+          className="h-10 rounded-2xl glass border-0 pl-9 pr-9"
         />
+        {q && (
+          <button
+            onClick={() => setQ("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Clear search"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
 
       <ul className="space-y-2 pb-6">
@@ -259,8 +272,8 @@ function HomePage() {
                   <div className="w-2 h-2 rounded-full bg-primary/50 shrink-0" />
                   <p className="font-medium text-sm truncate">{t.title}</p>
                 </div>
-                <span className="text-[10px] text-muted-foreground shrink-0">
-                  {new Date(t.updated_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                <span className="text-[10px] text-muted-foreground shrink-0" title={new Date(t.updated_at).toISOString()}>
+                  {relativeTime(t.updated_at)}
                 </span>
               </div>
               {t.preview && <p className="text-sm text-muted-foreground truncate mt-1 pl-4">{t.preview}</p>}

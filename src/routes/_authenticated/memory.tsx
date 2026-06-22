@@ -2,14 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useMemo, useRef, useEffect } from "react";
-import {
-  Brain, Plus, Trash2, Search, Sparkles, Shield, Download,
-  User, Briefcase, Zap, BookOpen, Settings, AlertTriangle,
-  ChevronDown, ChevronUp, Pencil, Check, X
-} from "lucide-react";
+import { Brain, Plus, Trash2, Search, Sparkles, Shield, Download, User, Briefcase, Zap, BookOpen, Settings, TriangleAlert as AlertTriangle, ChevronDown, ChevronUp, Pencil, Check, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { MemorySkeleton } from "@/components/SkeletonScreen";
+import { relativeTime } from "@/lib/time";
 
 export const Route = createFileRoute("/_authenticated/memory")({
   component: MemoryPage,
@@ -54,10 +52,11 @@ function MemoryPage() {
 
   useEffect(() => { if (editId) editRef.current?.focus(); }, [editId]);
 
-  const { data: memories = [] } = useQuery({
+  const { data: memories = [], isLoading } = useQuery({
     queryKey: ["memories"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("memories").select("*").order("created_at", { ascending: false });
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error } = await supabase.from("memories").select("*").eq("user_id", user?.id ?? "00000000-0000-0000-0000-000000000000").order("created_at", { ascending: false });
       if (error) throw error;
       return data as MemoryRow[];
     },
@@ -65,8 +64,9 @@ function MemoryPage() {
 
   const add = useMutation({
     mutationFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
       const { error } = await supabase.from("memories").insert({
-        user_id: '00000000-0000-0000-0000-000000000000',
+        user_id: user?.id ?? "00000000-0000-0000-0000-000000000000",
         content: content.trim(), category,
       });
       if (error) throw error;
@@ -97,7 +97,13 @@ function MemoryPage() {
       const { error } = await supabase.from("memories").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["memories"] }); toast.success("Memory erased"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["memories"] });
+      toast.success("Memory erased", {
+        action: { label: "Undo", onClick: () => { toast.info("Undo not yet implemented"); } },
+      });
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const seedMemories = useMutation({
