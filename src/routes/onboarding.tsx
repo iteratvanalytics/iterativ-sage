@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { SageLogo } from "@/components/SageLogo";
+import { useDemoMode } from "@/lib/demo-mode";
+import { DemoProfileSwitcher } from "@/components/DemoProfileSwitcher";
 
 export const Route = createFileRoute("/onboarding")({
   component: OnboardingPage,
@@ -65,6 +67,8 @@ function OnboardingPage() {
   const [selectedModel, setSelectedModel] = useState("auto");
   const [selectedIntegrations, setSelectedIntegrations] = useState<Set<string>>(new Set(["gmail", "calendar"]));
   const [memories, setMemories] = useState(["", "", ""]);
+  const [showDemoSwitcher, setShowDemoSwitcher] = useState(false);
+  const { setPersona } = useDemoMode();
   const [privacyMode, setPrivacyMode] = useState("ondevice");
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [animating, setAnimating] = useState(false);
@@ -380,7 +384,16 @@ function OnboardingPage() {
             Skip setup — go straight in
           </button>
         )}
+        {step === "Done" && (
+          <button
+            onClick={() => setShowDemoSwitcher(true)}
+            className="w-full py-3 rounded-2xl text-sm text-muted-foreground glass hover:text-foreground hover:bg-white/[3%] transition-colors"
+          >
+            Try a demo persona
+          </button>
+        )}
       </div>
+      {showDemoSwitcher && <DemoProfileSwitcher onClose={() => setShowDemoSwitcher(false)} />}
     </div>
   );
 }

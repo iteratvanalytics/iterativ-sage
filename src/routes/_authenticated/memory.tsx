@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { MemorySkeleton } from "@/components/SkeletonScreen";
 import { relativeTime } from "@/lib/time";
+import { useDemoMode } from "@/lib/demo-mode";
 
 export const Route = createFileRoute("/_authenticated/memory")({
   component: MemoryPage,
@@ -50,10 +51,11 @@ function MemoryPage() {
   const [showExportConfirm, setShowExportConfirm] = useState(false);
   const [showEraseConfirm, setShowEraseConfirm] = useState(false);
   const editRef = useRef<HTMLInputElement>(null);
+  const { isDemoMode, activePersona } = useDemoMode();
 
   useEffect(() => { if (editId) editRef.current?.focus(); }, [editId]);
 
-  const { data: memories = [], isLoading } = useQuery({
+  const { data: realMemories = [], isLoading } = useQuery({
     queryKey: ["memories"],
     queryFn: async () => {
       const uid = await getCurrentUserId();
@@ -61,7 +63,20 @@ function MemoryPage() {
       if (error) throw error;
       return data as MemoryRow[];
     },
+    enabled: !isDemoMode,
   });
+
+  const personaMemories = useMemo(() => {
+    if (!activePersona) return [];
+    return activePersona.memories.map((m, i) => ({
+      id: `demo-mem-${i}`,
+      content: m.content,
+      category: m.category,
+      created_at: m.created_at,
+    }));
+  }, [activePersona]);
+
+  const memories = isDemoMode ? personaMemories : realMemories;
 
   const add = useMutation({
     mutationFn: async () => {

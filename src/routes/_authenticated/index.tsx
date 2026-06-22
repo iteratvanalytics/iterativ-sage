@@ -2,11 +2,13 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentUserId, DEMO_USER_ID } from "@/lib/auth";
+import { useDemoMode } from "@/lib/demo-mode";
+import { DemoProfileSwitcher } from "@/components/DemoProfileSwitcher";
 import { SageLogo } from "@/components/SageLogo";
 import {
   Plus, Search, Sparkles, Globe, Mail, Calendar, MessageSquare,
   Zap, Bot, Brain, Shield, ArrowRight, ChevronRight, Mic, Video,
-  TriangleAlert as AlertTriangle
+  TriangleAlert as AlertTriangle, UserCircle
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo, useEffect } from "react";
@@ -43,11 +45,10 @@ const RECENT_ACTIVITY = [
   { label: "Privacy-routed 3 emails on-device",  time: "3h ago",  icon: Shield,  color: "text-emerald-400"},
 ];
 
-function getGreeting() {
+function getGreeting(name?: string) {
   const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
+  const base = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+  return name ? `${base}, ${name.split(" ")[0]}` : base;
 }
 
 function HomePage() {
@@ -55,6 +56,8 @@ function HomePage() {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [showMeetingAgent, setShowMeetingAgent] = useState(false);
+  const [showDemoSwitcher, setShowDemoSwitcher] = useState(false);
+  const { isDemoMode, activePersona } = useDemoMode();
   const PAGE_SIZE = 20;
   const [visible, setVisible] = useState(PAGE_SIZE);
 
@@ -90,10 +93,20 @@ function HomePage() {
     onError: (e: Error) => toast.error(e.message || "Couldn't start a new conversation."),
   });
 
-  const filtered = useMemo(() => threads.filter(t =>
+  const personaThreads = activePersona?.threads ?? [];
+  const displayThreads = isDemoMode
+    ? personaThreads.map((t, i) => ({
+        id: `demo-${i}`,
+        title: t.title,
+        preview: t.preview,
+        updated_at: t.updated_at,
+      }))
+    : threads;
+
+  const filtered = useMemo(() => displayThreads.filter(t =>
     !q || t.title.toLowerCase().includes(q.toLowerCase()) ||
     (t.preview ?? "").toLowerCase().includes(q.toLowerCase())
-  ), [threads, q]);
+  ), [displayThreads, q]);
 
   // Reset pagination whenever the search query changes.
   useEffect(() => { setVisible(PAGE_SIZE); }, [q]);
@@ -111,10 +124,17 @@ function HomePage() {
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Multi-model active</p>
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight mt-0.5">{getGreeting()}</h1>
+          <h1 className="text-3xl font-semibold tracking-tight mt-0.5">{getGreeting(activePersona?.profile.name)}</h1>
         </div>
         <div className="flex items-center gap-2">
           <NotificationCenter />
+          <button
+            onClick={() => setShowDemoSwitcher(true)}
+            className="w-10 h-10 rounded-full glass-strong flex items-center justify-center shadow-[var(--shadow-elevated)] active:scale-90 transition-transform"
+            aria-label="Switch demo profile"
+          >
+            <UserCircle className="w-5 h-5" />
+          </button>
           <button
             onClick={() => newThread.mutate(undefined)}
             className="w-10 h-10 rounded-full glass-strong flex items-center justify-center shadow-[var(--shadow-elevated)] active:scale-90 transition-transform"
@@ -200,7 +220,14 @@ function HomePage() {
           </Link>
         </div>
         <div className="space-y-2">
-          {LIVE_AGENTS.map(a => (
+          {(isDemoMode ? (activePersona?.agents ?? []).slice(0, 2).map(a => ({
+            name: a.name,
+            status: a.status,
+            model: a.model,
+            progress: a.progress,
+            time: a.eta,
+            subagents: a.subagents.length,
+          })) : LIVE_AGENTS).map(a => (
             <Link key={a.name} to="/agents" className="block glass rounded-2xl p-3 active:scale-[0.99] transition-transform">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl glass flex items-center justify-center shrink-0">
@@ -327,6 +354,7 @@ function HomePage() {
       </ul>
 
       {showMeetingAgent && <MeetingAgentSheet onClose={() => setShowMeetingAgent(false)} />}
+      {showDemoSwitcher && <DemoProfileSwitcher onClose={() => setShowDemoSwitcher(false)} />}
     </div>
   );
 }
