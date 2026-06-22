@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Sparkles, Zap, Globe, Shield, Bot, ChevronRight, CircleCheck as CheckCircle2, Clock, TriangleAlert as AlertTriangle } from "lucide-react";
 import { SkillsSkeleton } from "@/components/SkeletonScreen";
+import { useDemoMode } from "@/lib/demo-mode";
 
 export const Route = createFileRoute("/_authenticated/skills")({
   component: SkillsPage,
@@ -18,8 +19,12 @@ const SKILLS = [
 ];
 
 function SkillsPage() {
+  const { isDemoMode, activePersona } = useDemoMode();
+  const personaSkills = activePersona?.skills ?? [];
   const [skills, setSkills] = useState(SKILLS);
   const [isLoading] = useState(false); // Replace with real query later
+
+  const displaySkills = isDemoMode ? personaSkills : skills;
 
   const toggle = (id: string) => {
     setSkills(prev => prev.map(s => {
@@ -43,7 +48,7 @@ function SkillsPage() {
       <p className="text-sm text-muted-foreground mt-2">Reusable workflows that program Sage's behavior across your software stack.</p>
 
       <div className="grid grid-cols-2 gap-2 mt-6">
-        {skills.map(s => {
+        {displaySkills.map(s => {
           const Icon = s.icon;
           const installed = s.status === "installed" || s.status === "connected";
           return (

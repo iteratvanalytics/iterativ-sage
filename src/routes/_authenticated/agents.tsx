@@ -8,6 +8,7 @@ import {
 import { MeetingAgentSheet } from "@/components/MeetingAgentSheet";
 import { AgentsSkeleton } from "@/components/SkeletonScreen";
 import { toast } from "sonner";
+import { useDemoMode } from "@/lib/demo-mode";
 
 export const Route = createFileRoute("/_authenticated/agents")({
   component: AgentsPage,
@@ -115,12 +116,16 @@ const STATUS_META: Record<RunStatus, { icon: typeof Loader2; label: string; dotC
 };
 
 function AgentsPage() {
+  const { isDemoMode, activePersona } = useDemoMode();
+  const personaAgents = activePersona?.agents ?? [];
   const [runs, setRuns] = useState<AgentRun[]>(INITIAL_RUNS);
   const [filter, setFilter] = useState<RunStatus | "all">("all");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [showNewModal, setShowNewModal] = useState(false);
   const [showMeetingAgent, setShowMeetingAgent] = useState(false);
   const [isLoading] = useState(false);
+
+  const displayRuns = isDemoMode ? personaAgents : runs;
 
   const toggleStatus = (id: string) => {
     setRuns(prev => prev.map(r => {
@@ -158,10 +163,10 @@ function AgentsPage() {
     toast.success("Workflow started");
   };
 
-  const filtered = filter === "all" ? runs : runs.filter(r => r.status === filter);
-  const running   = runs.filter(r => r.status === "running").length;
-  const scheduled = runs.filter(r => r.status === "scheduled").length;
-  const done      = runs.filter(r => r.status === "done").length;
+  const filtered = filter === "all" ? displayRuns : displayRuns.filter(r => r.status === filter);
+  const running   = displayRuns.filter(r => r.status === "running").length;
+  const scheduled = displayRuns.filter(r => r.status === "scheduled").length;
+  const done      = displayRuns.filter(r => r.status === "done").length;
 
   if (isLoading) return <AgentsSkeleton />;
 
