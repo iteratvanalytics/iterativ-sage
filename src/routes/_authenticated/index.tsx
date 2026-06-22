@@ -1,13 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getCurrentUserId, DEMO_USER_ID } from "@/lib/auth";
 import { SageLogo } from "@/components/SageLogo";
 import {
   Plus, Search, Sparkles, Globe, Mail, Calendar, MessageSquare,
-  Zap, Bot, Brain, Shield, ArrowRight, ChevronRight, Mic, Video
+  Zap, Bot, Brain, Shield, ArrowRight, ChevronRight, Mic, Video,
+  TriangleAlert as AlertTriangle
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { MeetingAgentSheet } from "@/components/MeetingAgentSheet";
@@ -53,12 +55,19 @@ function HomePage() {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [showMeetingAgent, setShowMeetingAgent] = useState(false);
+  const PAGE_SIZE = 20;
+  const [visible, setVisible] = useState(PAGE_SIZE);
 
-  const { data: threads = [], isLoading } = useQuery({
+  const { data: threads = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["threads"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data, error } = await supabase.from("threads").select("*").eq("user_id", user?.id ?? "00000000-0000-0000-0000-000000000000").order("updated_at", { ascending: false });
+      const uid = await getCurrentUserId();
+      const { data, error } = await supabase
+        .from("threads")
+        .select("*")
+        .eq("user_id", uid)
+        .order("updated_at", { ascending: false })
+        .limit(200);
       if (error) throw error;
       return data;
     },
@@ -66,8 +75,9 @@ function HomePage() {
 
   const newThread = useMutation({
     mutationFn: async (seed?: string) => {
+      const uid = await getCurrentUserId();
       const { data, error } = await supabase.from("threads").insert({
-        user_id: '00000000-0000-0000-0000-000000000000',
+        user_id: uid ?? DEMO_USER_ID,
         title: seed ? seed.slice(0, 40) : "New conversation",
       }).select().single();
       if (error) throw error;
@@ -77,13 +87,20 @@ function HomePage() {
       qc.invalidateQueries({ queryKey: ["threads"] });
       navigate({ to: "/chat/$threadId", params: { threadId: id }, search: seed ? { seed } : {} });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(e.message || "Couldn't start a new conversation."),
   });
 
   const filtered = useMemo(() => threads.filter(t =>
     !q || t.title.toLowerCase().includes(q.toLowerCase()) ||
     (t.preview ?? "").toLowerCase().includes(q.toLowerCase())
   ), [threads, q]);
+
+  // Reset pagination whenever the search query changes.
+  useEffect(() => { setVisible(PAGE_SIZE); }, [q]);
+
+  const visibleThreads = filtered.slice(0, visible);
+
+  if (isLoading) return <HomeSkeleton />;
 
   return (
     <div className="px-5 pt-14 pb-8">
@@ -193,7 +210,8 @@ function HomePage() {
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium truncate">{a.name}</p>
                     <div className="flex items-center gap-1 shrink-0">
-                      <div className={`w-1.5 h-1.5 rounded-full ${a.status === "running" ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+                      <div className={`w-1.5 h-1.5 rounded-full ${a.status === "running" ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} aria-hidden="true" />
+                      <span className="sr-only">{a.status === "running" ? "Running" : "Scheduled"}.</span>
                       <span className="text-[10px] text-muted-foreground">{a.time}</span>
                     </div>
                   </div>
@@ -202,7 +220,14 @@ function HomePage() {
                     <span className="text-[10px] text-muted-foreground">·</span>
                     <span className="text-[10px] text-muted-foreground">{a.subagents} sub-agents</span>
                     {a.status === "running" && (
-                      <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden ml-1">
+                      <div
+                        className="flex-1 h-1 rounded-full bg-muted overflow-hidden ml-1"
+                        role="progressbar"
+                        aria-valuenow={a.progress}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`${a.name} progress`}
+                      >
                         <div className="h-full bg-primary rounded-full" style={{ width: `${a.progress}%` }} />
                       </div>
                     )}
@@ -236,11 +261,12 @@ function HomePage() {
         <span className="text-[10px] text-muted-foreground">{threads.length}</span>
       </div>
       <div className="relative mb-3">
-        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
         <Input
           value={q}
           onChange={e => setQ(e.target.value)}
           placeholder="Search conversations"
+          aria-label="Search conversations"
           className="h-10 rounded-2xl glass border-0 pl-9 pr-9"
         />
         {q && (
@@ -254,13 +280,21 @@ function HomePage() {
         )}
       </div>
 
+      {isError && (
+        <div className="glass rounded-2xl p-4 flex items-center gap-3 text-sm mb-3">
+          <AlertTriangle className="w-4 h-4 text-destructive shrink-0" aria-hidden="true" />
+          <span className="flex-1 text-muted-foreground">Couldn't load conversations.</span>
+          <button onClick={() => refetch()} className="text-primary text-xs font-medium">Retry</button>
+        </div>
+      )}
+
       <ul className="space-y-2 pb-6">
-        {filtered.length === 0 && (
+        {filtered.length === 0 && !isError && (
           <li className="text-sm text-muted-foreground text-center py-10">
             {q ? "No conversations match your search." : "No conversations yet — start one above."}
           </li>
         )}
-        {filtered.map(t => (
+        {visibleThreads.map(t => (
           <li key={t.id}>
             <Link
               to="/chat/$threadId"
@@ -269,7 +303,7 @@ function HomePage() {
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-2 h-2 rounded-full bg-primary/50 shrink-0" />
+                  <div className="w-2 h-2 rounded-full bg-primary/50 shrink-0" aria-hidden="true" />
                   <p className="font-medium text-sm truncate">{t.title}</p>
                 </div>
                 <span className="text-[10px] text-muted-foreground shrink-0" title={new Date(t.updated_at).toISOString()}>
@@ -280,6 +314,16 @@ function HomePage() {
             </Link>
           </li>
         ))}
+        {filtered.length > visible && (
+          <li>
+            <button
+              onClick={() => setVisible(v => v + PAGE_SIZE)}
+              className="w-full glass rounded-2xl py-3 text-sm font-medium text-primary active:scale-[0.99] transition-transform"
+            >
+              Load more ({filtered.length - visible} more)
+            </button>
+          </li>
+        )}
       </ul>
 
       {showMeetingAgent && <MeetingAgentSheet onClose={() => setShowMeetingAgent(false)} />}

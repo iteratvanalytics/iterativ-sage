@@ -247,7 +247,14 @@ function AgentsPage() {
             <div key={r.id} className="glass rounded-2xl overflow-hidden hover:bg-white/[3%] transition-colors">
               {/* Progress bar */}
               {r.status === "running" && (
-                <div className="h-[2px] bg-muted overflow-hidden">
+                <div
+                  className="h-[2px] bg-muted overflow-hidden"
+                  role="progressbar"
+                  aria-valuenow={r.progress}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`${r.name} progress`}
+                >
                   <div
                     className="h-full bg-primary rounded-full transition-all duration-1000"
                     style={{ width: `${r.progress}%` }}
@@ -306,9 +313,10 @@ function AgentsPage() {
                 {/* Expand button */}
                 <button
                   onClick={() => setExpanded(isExpanded ? null : r.id)}
+                  aria-expanded={isExpanded}
                   className="w-full flex items-center justify-center gap-1 mt-3 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
                 >
-                  {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                  {isExpanded ? <ChevronUp className="w-3 h-3" aria-hidden="true" /> : <ChevronDown className="w-3 h-3" aria-hidden="true" />}
                   {isExpanded ? "Hide" : "Show"} sub-agents
                 </button>
 

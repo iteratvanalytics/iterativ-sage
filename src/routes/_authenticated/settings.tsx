@@ -1,8 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { User, Bell, ChevronRight, Wifi, Phone, Send, Mail, Shield, Palette, Volume2, HardDrive, Brain, Cpu, Bot, CircleCheck as CheckCircle2, TriangleAlert as AlertTriangle, ToggleLeft, ToggleRight, LogOut, ChevronDown, ChevronUp, Keyboard, Zap, MessageSquare, Eye, FlaskConical, Globe, Star, Circle as HelpCircle, FileText, ExternalLink, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SageLogo } from "@/components/SageLogo";
+import { supabase } from "@/integrations/supabase/client";
+import { isSupabaseConfigured } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   component: SettingsPage,
@@ -86,12 +88,27 @@ function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
 }
 
 function SettingsPage() {
+  const navigate = useNavigate();
   const [selectedModel, setSelectedModel] = useState("auto");
   const [toggles, setToggles] = useState<Record<string, boolean>>(
     Object.fromEntries(TOGGLE_GROUPS.flatMap(g => g.toggles).map(t => [t.id, t.default]))
   );
   const [showConsent, setShowConsent] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+
+  const signOut = async () => {
+    if (!isSupabaseConfigured()) {
+      toast.info("Demo mode — connect Supabase to enable accounts.");
+      return;
+    }
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate({ to: "/auth", replace: true });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't sign out.");
+    }
+  };
 
   const flip = (id: string) => {
     setToggles(p => {
@@ -126,10 +143,11 @@ function SettingsPage() {
           </div>
         </div>
         <button
-          onClick={() => toast.info("Sign out — coming soon")}
+          onClick={signOut}
+          aria-label="Sign out"
           className="w-9 h-9 rounded-full glass flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-90 transition-all shrink-0"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-4 h-4" aria-hidden="true" />
         </button>
       </div>
 
