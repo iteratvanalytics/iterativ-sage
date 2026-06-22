@@ -78,6 +78,15 @@ function MemoryPage() {
 
   const memories = isDemoMode ? personaMemories : realMemories;
 
+  // Demo personas are read-only; block mutations and explain why.
+  const guardDemo = () => {
+    if (isDemoMode) {
+      toast.info("Demo mode — read only. Exit demo to edit memory.");
+      return true;
+    }
+    return false;
+  };
+
   const add = useMutation({
     mutationFn: async () => {
       const uid = await getCurrentUserId();
@@ -246,7 +255,7 @@ function MemoryPage() {
         {addOpen && (
           <div className="mt-2 animate-in fade-in slide-in-from-top-2 duration-200">
             <form
-              onSubmit={e => { e.preventDefault(); if (content.trim()) add.mutate(); }}
+              onSubmit={e => { e.preventDefault(); if (content.trim() && !guardDemo()) add.mutate(); }}
               className="glass-strong rounded-2xl p-3 space-y-2"
             >
               <Input
@@ -323,7 +332,7 @@ function MemoryPage() {
                 <p className="text-sm text-muted-foreground mb-1">Nothing remembered yet.</p>
                 <p className="text-[11px] text-muted-foreground/60 mb-5">Add a memory above, or seed some examples to see what this looks like.</p>
                 <button
-                  onClick={() => seedMemories.mutate()}
+                  onClick={() => { if (!guardDemo()) seedMemories.mutate(); }}
                   disabled={seedMemories.isPending}
                   className="px-4 py-2 glass rounded-xl text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
@@ -364,13 +373,13 @@ function MemoryPage() {
                       value={editContent}
                       onChange={e => setEditContent(e.target.value)}
                       onKeyDown={e => {
-                        if (e.key === "Enter") updateMemory.mutate({ id: m.id, content: editContent });
+                        if (e.key === "Enter" && !guardDemo()) updateMemory.mutate({ id: m.id, content: editContent });
                         if (e.key === "Escape") setEditId(null);
                       }}
                       className="flex-1 bg-white/5 rounded-lg px-2 py-1 text-sm outline-none border border-primary/30 focus:border-primary transition-colors"
                     />
                     <button
-                      onClick={() => updateMemory.mutate({ id: m.id, content: editContent })}
+                      onClick={() => { if (!guardDemo()) updateMemory.mutate({ id: m.id, content: editContent }); }}
                       className="w-6 h-6 rounded-md bg-emerald-500/20 text-emerald-400 flex items-center justify-center active:scale-90 transition-transform"
                     >
                       <Check className="w-3.5 h-3.5" />
@@ -391,14 +400,14 @@ function MemoryPage() {
               {!isEditing && (
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
-                    onClick={() => { setEditId(m.id); setEditContent(m.content); }}
+                    onClick={() => { if (!guardDemo()) { setEditId(m.id); setEditContent(m.content); } }}
                     className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
                     title="Edit"
                   >
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={() => del.mutate(m.id)}
+                    onClick={() => { if (!guardDemo()) del.mutate(m.id); }}
                     className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                     title="Delete"
                   >

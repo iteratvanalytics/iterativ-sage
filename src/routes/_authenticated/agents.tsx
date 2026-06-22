@@ -128,6 +128,7 @@ function AgentsPage() {
   const displayRuns = isDemoMode ? personaAgents : runs;
 
   const toggleStatus = (id: string) => {
+    if (isDemoMode) { toast.info("Demo mode — read only. Exit demo to control agents."); return; }
     setRuns(prev => prev.map(r => {
       if (r.id !== id) return r;
       if (r.status === "paused")   return { ...r, status: "running" as RunStatus };
@@ -137,6 +138,7 @@ function AgentsPage() {
   };
 
   const deleteRun = (id: string) => {
+    if (isDemoMode) { toast.info("Demo mode — read only. Exit demo to control agents."); return; }
     setRuns(prev => prev.filter(r => r.id !== id));
     toast.success("Workflow deleted", {
       action: { label: "Undo", onClick: () => {
@@ -147,6 +149,7 @@ function AgentsPage() {
   };
 
   const addRun = (template: typeof WORKFLOW_TEMPLATES[0]) => {
+    if (isDemoMode) { toast.info("Demo mode — read only. Exit demo to create agents."); setShowNewModal(false); return; }
     const newRun: AgentRun = {
       id: String(Date.now()),
       name: template.label,
