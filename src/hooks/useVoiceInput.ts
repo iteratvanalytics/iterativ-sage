@@ -2,6 +2,27 @@ import { useState, useRef, useCallback, useEffect } from "react";
 
 type VoiceState = "idle" | "listening" | "processing" | "error";
 
+type SRConstructor = new () => SRInstance;
+type SRInstance = {
+  lang: string;
+  interimResults: boolean;
+  maxAlternatives: number;
+  continuous: boolean;
+  onstart: (() => void) | null;
+  onresult: ((e: SRResultEvent) => void) | null;
+  onerror: ((e: SRErrorEvent) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+type SRResultEvent = { resultIndex: number; results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }> };
+type SRErrorEvent = { error: string };
+
+function getSR(): SRConstructor | undefined {
+  const w = window as unknown as { SpeechRecognition?: SRConstructor; webkitSpeechRecognition?: SRConstructor };
+  return w.SpeechRecognition || w.webkitSpeechRecognition;
+}
+
 type UseVoiceInputOptions = {
   onTranscript: (text: string) => void;
   onInterim?: (text: string) => void;
@@ -12,16 +33,15 @@ export function useVoiceInput({ onTranscript, onInterim, lang = "en-US" }: UseVo
   const [state, setState] = useState<VoiceState>("idle");
   const [supported, setSupported] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<SRInstance | null>(null);
   const stoppedByUser = useRef(false);
 
   useEffect(() => {
-    const SR = window.SpeechRecognition || (window as unknown as { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
-    setSupported(!!SR);
+    setSupported(!!getSR());
   }, []);
 
   const start = useCallback(() => {
-    const SR = window.SpeechRecognition || (window as unknown as { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
+    const SR = getSR();
     if (!SR) { setError("Voice input not supported in this browser"); return; }
 
     stoppedByUser.current = false;
@@ -35,7 +55,7 @@ export function useVoiceInput({ onTranscript, onInterim, lang = "en-US" }: UseVo
 
     rec.onstart = () => setState("listening");
 
-    rec.onresult = (e) => {
+    rec.onresult = (e: SRResultEvent) => {
       let interim = "";
       let final = "";
       for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -50,7 +70,7 @@ export function useVoiceInput({ onTranscript, onInterim, lang = "en-US" }: UseVo
       }
     };
 
-    rec.onerror = (e) => {
+    rec.onerror = (e: SRErrorEvent) => {
       if (e.error === "aborted" || stoppedByUser.current) return;
       setError(e.error === "not-allowed" ? "Microphone access denied" : `Voice error: ${e.error}`);
       setState("error");
