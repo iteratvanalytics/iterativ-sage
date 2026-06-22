@@ -2,22 +2,115 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
+// ---------------------------------------------------------------------------
+// In-memory demo store — used when Supabase env vars are absent.
+// All queries resolve instantly, no network calls ever made.
+// ---------------------------------------------------------------------------
+type Row = Record<string, unknown>;
+const store: Record<string, Row[]> = {};
+
+function getTable(table: string): Row[] {
+  if (!store[table]) store[table] = [];
+  return store[table];
+}
+
+function makeQueryBuilder(table: string, rows: Row[]): unknown {
+  let _rows = [...rows];
+  let _single = false;
+
+  const builder: Record<string, unknown> = {
+    select: (_cols?: string) => makeQueryBuilder(table, getTable(table)),
+    insert: (payload: Row | Row[]) => {
+      const items = Array.isArray(payload) ? payload : [payload];
+      const inserted = items.map(item => ({
+        id: crypto.randomUUID(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        ...item,
+      }));
+      getTable(table).unshift(...inserted);
+      _rows = inserted;
+      return builder;
+    },
+    update: (patch: Row) => {
+      _rows = _rows.map(r => ({ ...r, ...patch, updated_at: new Date().toISOString() }));
+      const tbl = getTable(table);
+      _rows.forEach(updated => {
+        const idx = tbl.findIndex(r => r.id === updated.id);
+        if (idx !== -1) tbl[idx] = updated;
+      });
+      return builder;
+    },
+    delete: () => {
+      const ids = new Set(_rows.map(r => r.id));
+      const tbl = getTable(table);
+      const kept = tbl.filter(r => !ids.has(r.id));
+      tbl.length = 0;
+      tbl.push(...kept);
+      _rows = [];
+      return builder;
+    },
+    eq: (col: string, val: unknown) => {
+      _rows = getTable(table).filter(r => r[col] === val);
+      return builder;
+    },
+    order: (_col: string, _opts?: unknown) => {
+      // Already ordered by insert (newest-first for unshift)
+      return builder;
+    },
+    limit: (n: number) => {
+      _rows = _rows.slice(0, n);
+      return builder;
+    },
+    single: () => {
+      _single = true;
+      return builder;
+    },
+    // Thenable — so callers can `await` or `.then()` the builder
+    then: (resolve: (v: { data: unknown; error: null }) => void) => {
+      if (_single) {
+        resolve({ data: _rows[0] ?? null, error: null });
+      } else {
+        resolve({ data: _rows, error: null });
+      }
+    },
+  };
+
+  return builder;
+}
+
+function createDemoClient() {
+  return {
+    from: (table: string) => makeQueryBuilder(table, getTable(table)),
+    auth: {
+      getUser: async () => ({ data: { user: null }, error: null }),
+      signOut: async () => ({ error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+    },
+    channel: () => ({
+      on: () => ({ subscribe: () => {} }),
+    }),
+  } as unknown as ReturnType<typeof createClient<Database>>;
+}
+
+// ---------------------------------------------------------------------------
+// Real client factory
+// ---------------------------------------------------------------------------
 function createSupabaseClient() {
-  // Use import.meta.env for client-side (Vite build-time replacement)
-  // Fall back to process.env for SSR (server-side rendering)
-  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-  const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
+  const SUPABASE_URL =
+    import.meta.env.VITE_SUPABASE_URL || (typeof process !== 'undefined' ? process.env.SUPABASE_URL : undefined);
+  const SUPABASE_PUBLISHABLE_KEY =
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || (typeof process !== 'undefined' ? process.env.SUPABASE_PUBLISHABLE_KEY : undefined);
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [
       ...(!SUPABASE_URL ? ['SUPABASE_URL'] : []),
       ...(!SUPABASE_PUBLISHABLE_KEY ? ['SUPABASE_PUBLISHABLE_KEY'] : []),
     ];
-    console.warn(`[Supabase] Missing: ${missing.join(', ')}. Running in demo mode — connect Supabase to enable persistence.`);
-    // Return a stub client that no-ops gracefully so the UI renders
-    return createClient<Database>('https://placeholder.supabase.co', 'placeholder-key', {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
+    console.warn(
+      `[Supabase] Missing: ${missing.join(', ')}. Running in demo mode — connect Supabase to enable persistence.`
+    );
+    return createDemoClient();
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -25,18 +118,15 @@ function createSupabaseClient() {
       storage: typeof window !== 'undefined' ? localStorage : undefined,
       persistSession: true,
       autoRefreshToken: true,
-    }
+    },
   });
 }
 
 let _supabase: ReturnType<typeof createSupabaseClient> | undefined;
 
-// Import the supabase client like this:
-// import { supabase } from "@/integrations/supabase/client";
 export const supabase = new Proxy({} as ReturnType<typeof createSupabaseClient>, {
   get(_, prop, receiver) {
     if (!_supabase) _supabase = createSupabaseClient();
-    return Reflect.get(_supabase, prop, receiver);
+    return Reflect.get(_supabase as object, prop, receiver);
   },
 });
-
