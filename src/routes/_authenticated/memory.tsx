@@ -2,7 +2,26 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useMemo, useRef, useEffect } from "react";
-import { Brain, Plus, Trash2, Search, Sparkles, Shield, Download, User, Briefcase, Zap, BookOpen, Settings, TriangleAlert as AlertTriangle, ChevronDown, ChevronUp, Pencil, Check, X } from "lucide-react";
+import {
+  Brain,
+  Plus,
+  Trash2,
+  Search,
+  Sparkles,
+  Shield,
+  Download,
+  User,
+  Briefcase,
+  Zap,
+  BookOpen,
+  Settings,
+  TriangleAlert as AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  Pencil,
+  Check,
+  X,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -14,26 +33,57 @@ export const Route = createFileRoute("/_authenticated/memory")({
   component: MemoryPage,
 });
 
-const CATEGORIES = ["general", "preferences", "people", "projects", "workflows", "knowledge"] as const;
+const CATEGORIES = [
+  "general",
+  "preferences",
+  "people",
+  "projects",
+  "workflows",
+  "knowledge",
+] as const;
 
-const CATEGORY_META: Record<string, { color: string; bar: string; icon: typeof Brain; label: string }> = {
-  general:     { color: "text-primary",     bar: "bg-primary",     icon: Brain,     label: "General"     },
-  preferences: { color: "text-amber-400",   bar: "bg-amber-400",   icon: Settings,  label: "Preferences" },
-  people:      { color: "text-rose-400",    bar: "bg-rose-400",    icon: User,      label: "People"      },
-  projects:    { color: "text-emerald-400", bar: "bg-emerald-400", icon: Briefcase, label: "Projects"    },
-  workflows:   { color: "text-cyan-400",    bar: "bg-cyan-400",    icon: Zap,       label: "Workflows"   },
-  knowledge:   { color: "text-fuchsia-400", bar: "bg-fuchsia-400", icon: BookOpen,  label: "Knowledge"   },
+const CATEGORY_META: Record<
+  string,
+  { color: string; bar: string; icon: typeof Brain; label: string }
+> = {
+  general: { color: "text-primary", bar: "bg-primary", icon: Brain, label: "General" },
+  preferences: {
+    color: "text-amber-400",
+    bar: "bg-amber-400",
+    icon: Settings,
+    label: "Preferences",
+  },
+  people: { color: "text-rose-400", bar: "bg-rose-400", icon: User, label: "People" },
+  projects: {
+    color: "text-emerald-400",
+    bar: "bg-emerald-400",
+    icon: Briefcase,
+    label: "Projects",
+  },
+  workflows: { color: "text-cyan-400", bar: "bg-cyan-400", icon: Zap, label: "Workflows" },
+  knowledge: {
+    color: "text-fuchsia-400",
+    bar: "bg-fuchsia-400",
+    icon: BookOpen,
+    label: "Knowledge",
+  },
 };
 
 const SEED_MEMORIES = [
-  { content: "Prefers email replies under 4 sentences, bullet points over prose",     category: "preferences" },
-  { content: "Warm tone, zero exclamation marks, no corporate jargon",                category: "preferences" },
-  { content: "Focus blocks: 09:00–11:00 daily — protect unless critical",            category: "preferences" },
-  { content: "Maya Chen — co-founder, prefers WhatsApp over email",                  category: "people"       },
-  { content: "Alex — lead engineer, timezone: WAT (UTC+1)",                          category: "people"       },
-  { content: "Q3 Review deck — in progress, 12 slides, submit by Oct 25",            category: "projects"     },
-  { content: "Weekly Digest skill — runs Fridays 5pm, read Notes only",              category: "workflows"    },
-  { content: "Prefers Claude Sonnet for drafting, Perplexity for live research",     category: "knowledge"    },
+  {
+    content: "Prefers email replies under 4 sentences, bullet points over prose",
+    category: "preferences",
+  },
+  { content: "Warm tone, zero exclamation marks, no corporate jargon", category: "preferences" },
+  { content: "Focus blocks: 09:00–11:00 daily — protect unless critical", category: "preferences" },
+  { content: "Maya Chen — co-founder, prefers WhatsApp over email", category: "people" },
+  { content: "Alex — lead engineer, timezone: WAT (UTC+1)", category: "people" },
+  { content: "Q3 Review deck — in progress, 12 slides, submit by Oct 25", category: "projects" },
+  { content: "Weekly Digest skill — runs Fridays 5pm, read Notes only", category: "workflows" },
+  {
+    content: "Prefers Claude Sonnet for drafting, Perplexity for live research",
+    category: "knowledge",
+  },
 ];
 
 type MemoryRow = { id: string; content: string; category: string; created_at: string };
@@ -52,13 +102,21 @@ function MemoryPage() {
   const editRef = useRef<HTMLInputElement>(null);
   const { isDemoMode, activePersona } = useDemoMode();
 
-  useEffect(() => { if (editId) editRef.current?.focus(); }, [editId]);
+  useEffect(() => {
+    if (editId) editRef.current?.focus();
+  }, [editId]);
 
   const { data: realMemories = [], isLoading } = useQuery({
     queryKey: ["memories"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data, error } = await supabase.from("memories").select("*").eq("user_id", user?.id ?? "00000000-0000-0000-0000-000000000000").order("created_at", { ascending: false });
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      const { data, error } = await supabase
+        .from("memories")
+        .select("*")
+        .eq("user_id", user?.id ?? "00000000-0000-0000-0000-000000000000")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data as MemoryRow[];
     },
@@ -79,15 +137,19 @@ function MemoryPage() {
 
   const add = useMutation({
     mutationFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       const { error } = await supabase.from("memories").insert({
         user_id: user?.id ?? "00000000-0000-0000-0000-000000000000",
-        content: content.trim(), category,
+        content: content.trim(),
+        category,
       });
       if (error) throw error;
     },
     onSuccess: () => {
-      setContent(""); setAddOpen(false);
+      setContent("");
+      setAddOpen(false);
       qc.invalidateQueries({ queryKey: ["memories"] });
       toast.success("Saved to memory");
     },
@@ -115,7 +177,12 @@ function MemoryPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["memories"] });
       toast.success("Memory erased", {
-        action: { label: "Undo", onClick: () => { toast.info("Undo not yet implemented"); } },
+        action: {
+          label: "Undo",
+          onClick: () => {
+            toast.info("Undo not yet implemented");
+          },
+        },
       });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -125,23 +192,36 @@ function MemoryPage() {
     mutationFn: async () => {
       for (const m of SEED_MEMORIES) {
         await supabase.from("memories").insert({
-          user_id: '00000000-0000-0000-0000-000000000000',
-          content: m.content, category: m.category,
+          user_id: "00000000-0000-0000-0000-000000000000",
+          content: m.content,
+          category: m.category,
         });
       }
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["memories"] }); toast.success("Example memories added"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["memories"] });
+      toast.success("Example memories added");
+    },
   });
 
-  const filtered = useMemo(() => memories.filter(m => {
-    const s = !search || m.content.toLowerCase().includes(search.toLowerCase()) || m.category.toLowerCase().includes(search.toLowerCase());
-    const f = activeFilter === "all" || m.category === activeFilter;
-    return s && f;
-  }), [memories, search, activeFilter]);
+  const filtered = useMemo(
+    () =>
+      memories.filter((m) => {
+        const s =
+          !search ||
+          m.content.toLowerCase().includes(search.toLowerCase()) ||
+          m.category.toLowerCase().includes(search.toLowerCase());
+        const f = activeFilter === "all" || m.category === activeFilter;
+        return s && f;
+      }),
+    [memories, search, activeFilter],
+  );
 
   const stats = useMemo(() => {
     const byCat: Record<string, number> = {};
-    memories.forEach(m => { byCat[m.category] = (byCat[m.category] || 0) + 1; });
+    memories.forEach((m) => {
+      byCat[m.category] = (byCat[m.category] || 0) + 1;
+    });
     return byCat;
   }, [memories]);
 
@@ -162,14 +242,20 @@ function MemoryPage() {
 
   return (
     <div className="px-5 pt-14 pb-8">
-      <p className="text-xs text-muted-foreground uppercase tracking-widest">Persistent Knowledge</p>
+      <p className="text-xs text-muted-foreground uppercase tracking-widest">
+        Persistent Knowledge
+      </p>
       <h1 className="text-3xl font-semibold tracking-tight mt-1">Memory</h1>
-      <p className="text-sm text-muted-foreground mt-1.5">What Sage remembers about you across every session.</p>
+      <p className="text-sm text-muted-foreground mt-1.5">
+        What Sage remembers about you across every session.
+      </p>
 
       {/* Privacy note */}
       <div className="mt-4 flex items-start gap-2 px-3 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-400/90 text-[11px]">
         <Shield className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-        <span>Stored locally, encrypted on-device. Deletion is real — no shadow copy retained.</span>
+        <span>
+          Stored locally, encrypted on-device. Deletion is real — no shadow copy retained.
+        </span>
       </div>
 
       {/* Stats row */}
@@ -180,21 +266,27 @@ function MemoryPage() {
         </div>
         <div className="flex-1 glass rounded-2xl p-3 text-center">
           <p className="text-2xl font-bold text-primary">{Object.keys(stats).length}</p>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Categories</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">
+            Categories
+          </p>
         </div>
         <div className="flex-1 glass rounded-2xl p-3 text-center">
           <p className="text-2xl font-bold text-amber-400">{Math.round(usagePct)}%</p>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Capacity</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">
+            Capacity
+          </p>
         </div>
       </div>
 
       {/* Category breakdown bar */}
       {memories.length > 0 && (
         <div className="mt-4 glass rounded-2xl p-4">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3">Distribution</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3">
+            Distribution
+          </p>
           {/* Segmented bar */}
           <div className="flex h-2 rounded-full overflow-hidden gap-px mb-3">
-            {CATEGORIES.filter(c => stats[c]).map(c => (
+            {CATEGORIES.filter((c) => stats[c]).map((c) => (
               <div
                 key={c}
                 className={`${CATEGORY_META[c].bar} transition-all duration-700`}
@@ -205,10 +297,12 @@ function MemoryPage() {
           </div>
           {/* Legend */}
           <div className="flex flex-wrap gap-x-3 gap-y-1.5">
-            {CATEGORIES.filter(c => stats[c]).map(c => (
+            {CATEGORIES.filter((c) => stats[c]).map((c) => (
               <div key={c} className="flex items-center gap-1.5">
                 <div className={`w-2 h-2 rounded-full ${CATEGORY_META[c].bar}`} />
-                <span className="text-[11px] text-muted-foreground">{CATEGORY_META[c].label} <span className="text-foreground/60">{stats[c]}</span></span>
+                <span className="text-[11px] text-muted-foreground">
+                  {CATEGORY_META[c].label} <span className="text-foreground/60">{stats[c]}</span>
+                </span>
               </div>
             ))}
           </div>
@@ -216,7 +310,9 @@ function MemoryPage() {
           <div className="mt-3 pt-3 border-t border-white/5">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[10px] text-muted-foreground">Memory usage</span>
-              <span className="text-[10px] text-muted-foreground">{memories.length}/{totalBudget}</span>
+              <span className="text-[10px] text-muted-foreground">
+                {memories.length}/{totalBudget}
+              </span>
             </div>
             <div className="h-1.5 rounded-full bg-muted overflow-hidden">
               <div
@@ -231,37 +327,46 @@ function MemoryPage() {
       {/* Collapsible add form */}
       <div className="mt-5">
         <button
-          onClick={() => setAddOpen(o => !o)}
+          onClick={() => setAddOpen((o) => !o)}
           className="w-full flex items-center justify-between px-4 py-3 glass rounded-2xl active:scale-[0.99] transition-transform"
         >
           <div className="flex items-center gap-2">
             <Plus className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium">Add a memory</span>
           </div>
-          {addOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+          {addOpen ? (
+            <ChevronUp className="w-4 h-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+          )}
         </button>
 
         {addOpen && (
           <div className="mt-2 animate-in fade-in slide-in-from-top-2 duration-200">
             <form
-              onSubmit={e => { e.preventDefault(); if (content.trim()) add.mutate(); }}
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (content.trim()) add.mutate();
+              }}
               className="glass-strong rounded-2xl p-3 space-y-2"
             >
               <Input
                 autoFocus
                 value={content}
-                onChange={e => setContent(e.target.value)}
+                onChange={(e) => setContent(e.target.value)}
                 placeholder="e.g. I prefer email replies under 4 sentences"
                 className="bg-transparent border-0 h-11"
               />
               <div className="flex gap-2">
                 <select
                   value={category}
-                  onChange={e => setCategory(e.target.value as never)}
+                  onChange={(e) => setCategory(e.target.value as never)}
                   className="flex-1 h-10 rounded-xl glass bg-transparent px-3 text-sm outline-none"
                 >
-                  {CATEGORIES.map(c => (
-                    <option key={c} value={c} className="bg-popover capitalize">{CATEGORY_META[c].label}</option>
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c} className="bg-popover capitalize">
+                      {CATEGORY_META[c].label}
+                    </option>
                   ))}
                 </select>
                 <Button
@@ -283,7 +388,7 @@ function MemoryPage() {
         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="Search memory"
           className="h-10 rounded-2xl glass border-0 pl-9"
         />
@@ -297,7 +402,7 @@ function MemoryPage() {
         >
           All ({memories.length})
         </button>
-        {CATEGORIES.filter(c => stats[c]).map(c => (
+        {CATEGORIES.filter((c) => stats[c]).map((c) => (
           <button
             key={c}
             onClick={() => setActiveFilter(c)}
@@ -319,7 +424,9 @@ function MemoryPage() {
             ) : (
               <>
                 <p className="text-sm text-muted-foreground mb-1">Nothing remembered yet.</p>
-                <p className="text-[11px] text-muted-foreground/60 mb-5">Add a memory above, or seed some examples to see what this looks like.</p>
+                <p className="text-[11px] text-muted-foreground/60 mb-5">
+                  Add a memory above, or seed some examples to see what this looks like.
+                </p>
                 <button
                   onClick={() => seedMemories.mutate()}
                   disabled={seedMemories.isPending}
@@ -333,25 +440,31 @@ function MemoryPage() {
           </div>
         )}
 
-        {filtered.map(m => {
+        {filtered.map((m) => {
           const meta = CATEGORY_META[m.category] ?? CATEGORY_META.general;
           const Icon = meta.icon;
           const isEditing = editId === m.id;
 
           return (
-            <div
-              key={m.id}
-              className="glass rounded-2xl p-3 flex items-start gap-3 group relative"
-            >
-              <div className={`w-8 h-8 rounded-lg glass flex items-center justify-center shrink-0 ${meta.color}`}>
+            <div key={m.id} className="glass rounded-2xl p-3 flex items-start gap-3 group relative">
+              <div
+                className={`w-8 h-8 rounded-lg glass flex items-center justify-center shrink-0 ${meta.color}`}
+              >
                 <Icon className="w-4 h-4" />
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-[10px] uppercase tracking-wider font-medium ${meta.color}`}>{meta.label}</span>
+                  <span
+                    className={`text-[10px] uppercase tracking-wider font-medium ${meta.color}`}
+                  >
+                    {meta.label}
+                  </span>
                   <span className="text-[10px] text-muted-foreground">
-                    {new Date(m.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                    {new Date(m.created_at).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </span>
                 </div>
 
@@ -360,9 +473,10 @@ function MemoryPage() {
                     <input
                       ref={editRef}
                       value={editContent}
-                      onChange={e => setEditContent(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === "Enter") updateMemory.mutate({ id: m.id, content: editContent });
+                      onChange={(e) => setEditContent(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter")
+                          updateMemory.mutate({ id: m.id, content: editContent });
                         if (e.key === "Escape") setEditId(null);
                       }}
                       className="flex-1 bg-white/5 rounded-lg px-2 py-1 text-sm outline-none border border-primary/30 focus:border-primary transition-colors"
@@ -389,7 +503,10 @@ function MemoryPage() {
               {!isEditing && (
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
-                    onClick={() => { setEditId(m.id); setEditContent(m.content); }}
+                    onClick={() => {
+                      setEditId(m.id);
+                      setEditContent(m.content);
+                    }}
                     className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
                     title="Edit"
                   >
@@ -412,7 +529,9 @@ function MemoryPage() {
       {/* Data controls */}
       {memories.length > 0 && (
         <div className="mt-6 space-y-2">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3">Data Controls</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3">
+            Data Controls
+          </p>
 
           {!showExportConfirm ? (
             <button
@@ -426,8 +545,19 @@ function MemoryPage() {
             <div className="glass rounded-2xl p-3 space-y-2">
               <p className="text-[13px] text-center">Export {memories.length} memories as JSON?</p>
               <div className="flex gap-2">
-                <button onClick={() => setShowExportConfirm(false)} className="flex-1 glass rounded-xl py-2 text-sm text-muted-foreground">Cancel</button>
-                <button onClick={exportData} className="flex-1 rounded-xl py-2 text-sm text-primary-foreground" style={{ background: "var(--gradient-hero)" }}>Export</button>
+                <button
+                  onClick={() => setShowExportConfirm(false)}
+                  className="flex-1 glass rounded-xl py-2 text-sm text-muted-foreground"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={exportData}
+                  className="flex-1 rounded-xl py-2 text-sm text-primary-foreground"
+                  style={{ background: "var(--gradient-hero)" }}
+                >
+                  Export
+                </button>
               </div>
             </div>
           )}
@@ -442,13 +572,23 @@ function MemoryPage() {
             </button>
           ) : (
             <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-3 space-y-2">
-              <p className="text-[13px] font-semibold text-destructive text-center">⚠ This cannot be undone</p>
-              <p className="text-[11px] text-muted-foreground text-center">All {memories.length} memories will be permanently deleted.</p>
+              <p className="text-[13px] font-semibold text-destructive text-center">
+                ⚠ This cannot be undone
+              </p>
+              <p className="text-[11px] text-muted-foreground text-center">
+                All {memories.length} memories will be permanently deleted.
+              </p>
               <div className="flex gap-2">
-                <button onClick={() => setShowEraseConfirm(false)} className="flex-1 glass rounded-xl py-2 text-sm">Cancel</button>
+                <button
+                  onClick={() => setShowEraseConfirm(false)}
+                  className="flex-1 glass rounded-xl py-2 text-sm"
+                >
+                  Cancel
+                </button>
                 <button
                   onClick={async () => {
-                    for (const m of memories) await supabase.from("memories").delete().eq("id", m.id);
+                    for (const m of memories)
+                      await supabase.from("memories").delete().eq("id", m.id);
                     qc.invalidateQueries({ queryKey: ["memories"] });
                     setShowEraseConfirm(false);
                     toast.success("All memories erased");

@@ -23,6 +23,6 @@ export function usePersonaData(): PersonaData {
       agents: activePersona?.agents ?? [],
       profile: activePersona?.profile,
     }),
-    [activePersona]
+    [activePersona],
   );
 }

@@ -92,9 +92,7 @@ export function DemoProfileSwitcher({ onClose }: Props) {
                 key={p.id}
                 onClick={() => select(p.id)}
                 className={`w-full text-left rounded-2xl p-4 transition-all duration-200 active:scale-[0.98] ${
-                  isActive
-                    ? "bg-primary/10 ring-1 ring-primary/30"
-                    : "glass hover:bg-white/[3%]"
+                  isActive ? "bg-primary/10 ring-1 ring-primary/30" : "glass hover:bg-white/[3%]"
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -106,17 +104,11 @@ export function DemoProfileSwitcher({ onClose }: Props) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="font-semibold text-sm">{p.name}</p>
-                      {isActive && (
-                        <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                      )}
+                      {isActive && <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />}
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {p.role}
-                    </p>
+                    <p className="text-xs text-muted-foreground truncate">{p.role}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] text-muted-foreground/60">
-                        {p.location}
-                      </span>
+                      <span className="text-[10px] text-muted-foreground/60">{p.location}</span>
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-muted-foreground">
                         {p.tag}
                       </span>

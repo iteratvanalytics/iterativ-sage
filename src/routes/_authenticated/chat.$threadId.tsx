@@ -46,7 +46,10 @@ function ChatPage() {
   const { isDemoMode, activePersona } = useDemoMode();
   const isDemoThread = threadId.startsWith("demo-");
   const demoThreadIndex = isDemoThread ? parseInt(threadId.replace("demo-", ""), 10) : -1;
-  const demoThread = isDemoMode && activePersona && demoThreadIndex >= 0 ? activePersona.threads[demoThreadIndex] : null;
+  const demoThread =
+    isDemoMode && activePersona && demoThreadIndex >= 0
+      ? activePersona.threads[demoThreadIndex]
+      : null;
 
   const { speak, stop: stopTTS, speaking } = useTTS({ rate: 1.05, pitch: 1 });
 
@@ -65,9 +68,18 @@ function ChatPage() {
     queryKey: ["thread", threadId],
     queryFn: async () => {
       if (isDemoThread) {
-        return { id: threadId, title: demoThread?.title ?? "Demo chat", user_id: "demo", created_at: new Date().toISOString() };
+        return {
+          id: threadId,
+          title: demoThread?.title ?? "Demo chat",
+          user_id: "demo",
+          created_at: new Date().toISOString(),
+        };
       }
-      const { data, error } = await supabase.from("threads").select("*").eq("id", threadId).maybeSingle();
+      const { data, error } = await supabase
+        .from("threads")
+        .select("*")
+        .eq("id", threadId)
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -91,7 +103,11 @@ function ChatPage() {
           created_at: new Date().toISOString(),
         })) as unknown as Msg[];
       }
-      const { data, error } = await supabase.from("messages").select("*").eq("thread_id", threadId).order("created_at");
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("thread_id", threadId)
+        .order("created_at");
       if (error) throw error;
       return data as unknown as Msg[];
     },
@@ -109,11 +125,18 @@ function ChatPage() {
       }
       const uid = await getCurrentUserId();
       const { error: e1 } = await supabase.from("messages").insert({
-        thread_id: threadId, user_id: uid, role: "user", content: text, parts: [{ type: "text", text }],
+        thread_id: threadId,
+        user_id: uid,
+        role: "user",
+        content: text,
+        parts: [{ type: "text", text }],
       });
       if (e1) throw e1;
       if (messages.length === 0) {
-        await supabase.from("threads").update({ title: makeThreadTitle(text) }).eq("id", threadId);
+        await supabase
+          .from("threads")
+          .update({ title: makeThreadTitle(text) })
+          .eq("id", threadId);
       }
       qc.invalidateQueries({ queryKey: ["messages", threadId] });
       qc.invalidateQueries({ queryKey: ["threads"] });
@@ -123,7 +146,11 @@ function ChatPage() {
       const reply = await generateReply({ data: { message: text, history } });
 
       const { error: e2 } = await supabase.from("messages").insert({
-        thread_id: threadId, user_id: uid, role: "assistant", content: reply.text, parts: reply.parts,
+        thread_id: threadId,
+        user_id: uid,
+        role: "assistant",
+        content: reply.text,
+        parts: reply.parts,
       });
       if (e2) throw e2;
       setThinking(false);
@@ -152,21 +179,29 @@ function ChatPage() {
     }
   }, [seed, messages.length, send, navigate, threadId]);
 
-  const submit = useCallback((text: string) => {
-    const v = text.trim();
-    if (!v || send.isPending) return;
-    setInput("");
-    setInterimText("");
-    send.mutate(v);
-  }, [send]);
+  const submit = useCallback(
+    (text: string) => {
+      const v = text.trim();
+      if (!v || send.isPending) return;
+      setInput("");
+      setInterimText("");
+      send.mutate(v);
+    },
+    [send],
+  );
 
-  useEffect(() => { submitRef.current = submit; }, [submit]);
+  useEffect(() => {
+    submitRef.current = submit;
+  }, [submit]);
 
   const copyMessage = (content: string, id: string) => {
-    navigator.clipboard.writeText(content).then(() => {
-      setCopiedId(id);
-      setTimeout(() => setCopiedId(null), 1500);
-    }).catch(() => toast.error("Couldn't copy to clipboard"));
+    navigator.clipboard
+      .writeText(content)
+      .then(() => {
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 1500);
+      })
+      .catch(() => toast.error("Couldn't copy to clipboard"));
   };
 
   const handleChipClick = (chip: string) => submit(chip);
@@ -174,14 +209,21 @@ function ChatPage() {
   const toggleTts = () => {
     const next = !ttsEnabled;
     setTtsEnabled(next);
-    try { localStorage.setItem("sage_tts", next ? "on" : "off"); } catch { /* ignore */ }
+    try {
+      localStorage.setItem("sage_tts", next ? "on" : "off");
+    } catch {
+      /* ignore */
+    }
     if (!next) stopTTS();
     toast.success(next ? "Voice readback on" : "Voice readback off");
   };
 
   return (
     <div className="flex flex-col h-screen">
-      <a href="#chat-input" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground">
+      <a
+        href="#chat-input"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
+      >
         Skip to message input
       </a>
 
@@ -196,21 +238,29 @@ function ChatPage() {
         </Link>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-primary" style={{ background: 'var(--gradient-orb)' }}>
+            <div
+              className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-primary"
+              style={{ background: "var(--gradient-orb)" }}
+            >
               <SageLogo size={14} className="text-primary" />
             </div>
             <p className="font-semibold truncate text-sm">{thread?.title ?? "New chat"}</p>
             {isDemoThread && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-medium shrink-0">Demo</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-medium shrink-0">
+                Demo
+              </span>
             )}
           </div>
           <div className="flex items-center gap-1.5 mt-0.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+            <div
+              className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"
+              aria-hidden="true"
+            />
             <p className="text-[10px] text-muted-foreground">Multi-model orchestration active</p>
           </div>
         </div>
         <button
-          onClick={() => copyMessage(messages.map(m => m.content).join("\n\n"), "all")}
+          onClick={() => copyMessage(messages.map((m) => m.content).join("\n\n"), "all")}
           aria-label="Copy whole conversation"
           className="w-9 h-9 rounded-full glass flex items-center justify-center active:scale-95 transition-transform"
         >
@@ -230,11 +280,15 @@ function ChatPage() {
           <div className="glass rounded-2xl p-4 flex items-center gap-3 text-sm">
             <AlertTriangle className="w-4 h-4 text-destructive shrink-0" aria-hidden="true" />
             <span className="flex-1 text-muted-foreground">Couldn't load messages.</span>
-            <button onClick={() => refetchMessages()} className="text-primary text-xs font-medium">Retry</button>
+            <button onClick={() => refetchMessages()} className="text-primary text-xs font-medium">
+              Retry
+            </button>
           </div>
         )}
-        {messages.length === 0 && !thinking && !messagesError && <EmptyState onChip={handleChipClick} />}
-        {messages.map(m => (
+        {messages.length === 0 && !thinking && !messagesError && (
+          <EmptyState onChip={handleChipClick} />
+        )}
+        {messages.map((m) => (
           <MessageBubble
             key={m.id}
             msg={m}
