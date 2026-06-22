@@ -2,13 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useRef, useState, useCallback } from "react";
-import {
-  ChevronLeft, ArrowUp, Mic, Sparkles, Wrench, Globe, Mail, Calendar,
-  Image as ImageIcon, Brain, Bot, Loader as Loader2, Cpu, Zap, Wifi,
-  Terminal, CircleCheck as CheckCircle2, Shield, AlertTriangle, Copy,
-  RotateCcw, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, Lock,
-  Cloud, Smartphone, MicOff, Volume2
-} from "lucide-react";
+import { SageLogo } from "@/components/SageLogo";
+import { ChevronLeft, ArrowUp, Mic, Sparkles, Wrench, Globe, Mail, Calendar, Image as ImageIcon, Brain, Bot, Loader as Loader2, Cpu, Zap, Wifi, Terminal, CircleCheck as CheckCircle2, Shield, TriangleAlert as AlertTriangle, Copy, RotateCcw, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, Lock, Cloud, Smartphone, MicOff, Volume2 } from "lucide-react";
 import { mockReply, makeThreadTitle, type MessagePart } from "@/lib/mockAgent";
 import { useVoiceInput, useTTS } from "@/hooks/useVoiceInput";
 import { toast } from "sonner";
@@ -155,7 +150,9 @@ function ChatPage() {
         </Link>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full siri-orb shrink-0" />
+            <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-primary" style={{ background: 'var(--gradient-orb)' }}>
+              <SageLogo size={14} className="text-primary" />
+            </div>
             <p className="font-semibold truncate text-sm">{thread?.title ?? "New chat"}</p>
           </div>
           <div className="flex items-center gap-1.5 mt-0.5">
@@ -293,7 +290,9 @@ function EmptyState({ onChip }: { onChip: (s: string) => void }) {
   return (
     <div className="text-center pt-12">
       <div className="relative w-20 h-20 mx-auto mb-5">
-        <div className="w-20 h-20 rounded-full siri-orb shadow-[var(--shadow-glow)]" />
+        <div className="w-20 h-20 rounded-full flex items-center justify-center text-primary shadow-[var(--shadow-glow)]" style={{ background: 'var(--gradient-orb)' }}>
+          <SageLogo size={44} className="text-primary" />
+        </div>
         <div className="absolute inset-0 rounded-full border border-primary/20 animate-ping" style={{ animationDuration: "2s" }} />
       </div>
       <h2 className="text-2xl font-semibold">How can I help?</h2>
@@ -332,7 +331,9 @@ function ThinkingOrchestrator() {
   const Icon = S.icon;
   return (
     <div className="flex items-center gap-3 max-w-[90%] animate-in fade-in slide-in-from-bottom-2">
-      <div className="w-7 h-7 rounded-full siri-orb shrink-0" />
+      <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-primary" style={{ background: 'var(--gradient-orb)' }}>
+        <SageLogo size={16} className="text-primary" />
+      </div>
       <div className="glass rounded-2xl px-4 py-3 flex items-center gap-3">
         <Icon className={`w-4 h-4 ${S.color} animate-spin`} />
         <span className="text-sm text-muted-foreground">{S.text}</span>
@@ -373,7 +374,9 @@ function MessageBubble({
   }
   return (
     <div className="flex gap-2 max-w-[96%] animate-in fade-in slide-in-from-bottom-1">
-      <div className="w-7 h-7 rounded-full siri-orb shrink-0 mt-1" />
+      <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-primary mt-1" style={{ background: 'var(--gradient-orb)' }}>
+        <SageLogo size={16} className="text-primary" />
+      </div>
       <div className="flex-1 space-y-2 min-w-0">
         {msg.parts.map((p, i) => (
           <PartView

@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { SageLogo } from "@/components/SageLogo";
 import {
-  Plus, Search, Sparkles, Globe, Mail, Calendar, Image, MessageSquare,
+  Plus, Search, Sparkles, Globe, Mail, Calendar, MessageSquare,
   Zap, Bot, Brain, Shield, ArrowRight, ChevronRight, Mic, Video
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -109,12 +110,12 @@ function HomePage() {
         className="w-full text-left rounded-3xl p-5 mb-5 relative overflow-hidden shadow-[var(--shadow-elevated)] active:scale-[0.99] transition-transform"
         style={{ background: "var(--gradient-card)" }}
       >
-        <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full opacity-60 siri-orb" />
-        <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full opacity-20 siri-orb" />
+        <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full opacity-60" style={{ background: 'var(--gradient-orb)' }} />
+        <div className="absolute -right-6 -bottom-6 w-24 h-24 rounded-full opacity-20" style={{ background: 'var(--gradient-orb)' }} />
         <div className="relative">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-8 h-8 rounded-xl glass-strong flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-primary" />
+              <SageLogo size={20} className="text-primary" />
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />

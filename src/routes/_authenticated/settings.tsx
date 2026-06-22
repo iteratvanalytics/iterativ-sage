@@ -1,13 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  User, Bell, ChevronRight, Wifi, Phone, Send, Mail, Shield, Palette,
-  Volume2, HardDrive, Brain, Cpu, Bot, CheckCircle2, AlertTriangle,
-  ToggleLeft, ToggleRight, LogOut, ChevronDown, ChevronUp, Keyboard,
-  Zap, MessageSquare, Eye, FlaskConical, Globe, Star, HelpCircle,
-  FileText, ExternalLink, Trash2
-} from "lucide-react";
+import { User, Bell, ChevronRight, Wifi, Phone, Send, Mail, Shield, Palette, Volume2, HardDrive, Brain, Cpu, Bot, CircleCheck as CheckCircle2, TriangleAlert as AlertTriangle, ToggleLeft, ToggleRight, LogOut, ChevronDown, ChevronUp, Keyboard, Zap, MessageSquare, Eye, FlaskConical, Globe, Star, Circle as HelpCircle, FileText, ExternalLink, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { SageLogo } from "@/components/SageLogo";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   component: SettingsPage,
@@ -114,7 +109,9 @@ function SettingsPage() {
       {/* Profile card */}
       <div className="glass-strong rounded-3xl p-5 mt-6 flex items-center gap-4">
         <div className="relative">
-          <div className="w-14 h-14 rounded-full siri-orb shadow-[var(--shadow-glow)]" />
+          <div className="w-14 h-14 rounded-full flex items-center justify-center text-primary shadow-[var(--shadow-glow)]" style={{ background: 'var(--gradient-orb)' }}>
+            <SageLogo size={32} className="text-primary" />
+          </div>
           <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-emerald-400 border-2 border-background" />
         </div>
         <div className="flex-1 min-w-0">
@@ -318,7 +315,9 @@ function SettingsPage() {
       {/* Version footer */}
       <div className="mt-8 text-center space-y-1">
         <div className="flex items-center justify-center gap-2 mb-2">
-          <div className="w-6 h-6 rounded-full siri-orb" />
+          <div className="w-6 h-6 rounded-full flex items-center justify-center text-primary" style={{ background: 'var(--gradient-orb)' }}>
+            <SageLogo size={16} className="text-primary" />
+          </div>
           <span className="font-semibold text-sm">Sage</span>
         </div>
         <p className="text-[11px] text-muted-foreground">v0.17.0 · The Reach Release</p>

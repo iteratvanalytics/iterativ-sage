@@ -136,8 +136,10 @@ function OnboardingPage() {
         {step === "Welcome" && (
           <div className="flex flex-col items-center text-center gap-6 pt-8">
             <div className="relative">
-              <div className="w-24 h-24 rounded-3xl siri-orb shadow-[var(--shadow-glow)]" />
-              <div className="absolute inset-0 rounded-3xl siri-orb-glow" />
+              <div className="w-24 h-24 rounded-3xl flex items-center justify-center text-primary shadow-[var(--shadow-glow)]" style={{ background: 'var(--gradient-orb)' }}>
+                <SageLogo size={56} className="text-primary" />
+              </div>
+              <div className="absolute inset-0 rounded-3xl" style={{ background: 'var(--gradient-orb)' }} />
             </div>
             <div>
               <h1 className="text-4xl font-bold tracking-tight">Meet Sage</h1>
@@ -181,7 +183,7 @@ function OnboardingPage() {
                     className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left transition-all active:scale-[0.99] ${
                       selected ? "ring-1 ring-primary/50" : "glass"
                     }`}
-                    style={selected ? { background: "linear-gradient(135deg, oklch(0.72 0.18 280 / 0.12), oklch(0.78 0.16 200 / 0.06))" } : {}}
+                    style={selected ? { background: "linear-gradient(135deg, oklch(0.62 0.10 150 / 0.12), oklch(0.72 0.12 165 / 0.06))" } : {}}
                   >
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${selected ? "bg-primary/20" : "glass"}`}>
                       <Icon className={`w-5 h-5 ${selected ? "text-primary" : "text-muted-foreground"}`} />
@@ -217,7 +219,7 @@ function OnboardingPage() {
                     key={s.id}
                     onClick={() => toggleIntegration(s.id)}
                     className={`flex flex-col items-start gap-2.5 p-4 rounded-2xl text-left transition-all active:scale-[0.99] ${on ? "ring-1 ring-primary/40" : "glass"}`}
-                    style={on ? { background: "linear-gradient(135deg, oklch(0.72 0.18 280 / 0.10), oklch(0.78 0.16 200 / 0.05))" } : {}}
+                    style={on ? { background: "linear-gradient(135deg, oklch(0.62 0.10 150 / 0.10), oklch(0.72 0.12 165 / 0.05))" } : {}}
                   >
                     <div className="flex items-center justify-between w-full">
                       <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${s.color}`}>
@@ -299,7 +301,7 @@ function OnboardingPage() {
                     key={opt.id}
                     onClick={() => setPrivacyMode(opt.id)}
                     className={`w-full flex items-start gap-3 px-4 py-4 rounded-2xl text-left transition-all active:scale-[0.99] ${selected ? "ring-1 ring-primary/50" : "glass"}`}
-                    style={selected ? { background: "linear-gradient(135deg, oklch(0.72 0.18 280 / 0.12), oklch(0.78 0.16 200 / 0.06))" } : {}}
+                    style={selected ? { background: "linear-gradient(135deg, oklch(0.62 0.10 150 / 0.12), oklch(0.72 0.12 165 / 0.06))" } : {}}
                   >
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${selected ? "bg-primary/20" : "glass"}`}>
                       <Icon className={`w-5 h-5 ${selected ? "text-primary" : "text-muted-foreground"}`} />
@@ -327,7 +329,9 @@ function OnboardingPage() {
         {step === "Done" && (
           <div className="flex flex-col items-center text-center gap-6 pt-6">
             <div className="relative">
-              <div className="w-20 h-20 rounded-3xl siri-orb shadow-[var(--shadow-glow)]" />
+              <div className="w-20 h-20 rounded-3xl flex items-center justify-center text-primary shadow-[var(--shadow-glow)]" style={{ background: 'var(--gradient-orb)' }}>
+                <SageLogo size={44} className="text-primary" />
+              </div>
               <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-400 flex items-center justify-center shadow-lg">
                 <Check className="w-5 h-5 text-white" strokeWidth={2.5} />
               </div>

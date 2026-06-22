@@ -163,7 +163,7 @@ function AgentsPage() {
         className="w-full mt-5 rounded-3xl p-4 text-left relative overflow-hidden active:scale-[0.99] transition-transform shadow-[var(--shadow-elevated)]"
         style={{ background: "var(--gradient-card)" }}
       >
-        <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full opacity-50 siri-orb" />
+        <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full opacity-50" style={{ background: 'var(--gradient-orb)' }} />
         <div className="relative flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-primary/20 backdrop-blur flex items-center justify-center shrink-0">
             <Video className="w-6 h-6 text-primary" />
