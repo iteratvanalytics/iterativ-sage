@@ -30,8 +30,8 @@ describe what you would do and ask for confirmation before anything irreversible
  * bundle.
  */
 export const generateReply = createServerFn({ method: "POST" })
-  .validator((d: unknown) => inputSchema.parse(d))
-  .handler(async ({ data }): Promise<GenerateReplyResult> => {
+  .inputValidator((d: unknown) => inputSchema.parse(d))
+  .handler(async ({ data }: { data: z.infer<typeof inputSchema> }): Promise<GenerateReplyResult> => {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     const model = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
 
@@ -41,7 +41,7 @@ export const generateReply = createServerFn({ method: "POST" })
     }
 
     const messages = [
-      ...(data.history ?? []).map((m) => ({ role: m.role, content: m.content })),
+      ...(data.history ?? []).map((m: z.infer<typeof historyItem>) => ({ role: m.role, content: m.content })),
       { role: "user" as const, content: data.message },
     ];
 
