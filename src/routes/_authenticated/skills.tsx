@@ -49,7 +49,7 @@ function SkillsPage() {
 
       <div className="grid grid-cols-2 gap-2 mt-6">
         {displaySkills.map(s => {
-          const Icon = s.icon;
+          const Icon = "icon" in s && s.icon ? (s.icon as typeof Sparkles) : Sparkles;
           const installed = s.status === "installed" || s.status === "connected";
           return (
             <button
