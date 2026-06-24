@@ -247,9 +247,6 @@ function HomePage() {
           </div>
           <div>
             <p className="text-[11px] text-white/50">{getGreeting(activePersona?.profile.name)}</p>
-            <p className="text-sm font-semibold text-white/90">
-              {activePersona?.profile.name ?? "Sage User"}
-            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
