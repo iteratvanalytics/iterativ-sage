@@ -1,199 +1,337 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   Bot,
-  CircleCheck as CheckCircle2,
-  Loader as Loader2,
-  Clock,
-  Pause,
+  Cpu,
+  Zap,
   Play,
+  Pause,
   Trash2,
-  Plus,
   ChevronDown,
   ChevronUp,
-  Zap,
-  Cpu,
+  Clock,
   Globe,
-  Mail,
-  Brain,
-  Terminal,
+  MessageSquare,
+  Pen,
+  Calendar,
   Shield,
-  X,
-  Video,
-  Check,
+  Sparkles,
+  Activity,
   TriangleAlert as AlertTriangle,
-  ArrowRight,
+  CircleCheck as CheckCircle2,
+  CircleUser as UserCircle,
+  User,
+  Briefcase,
+  HardDrive,
+  Star,
+  Plus,
 } from "lucide-react";
-import { MeetingAgentSheet } from "@/components/MeetingAgentSheet";
-import { AgentsSkeleton } from "@/components/SkeletonScreen";
-import { toast } from "sonner";
 import { useDemoMode } from "@/lib/demo-mode";
+import { AgentsSkeleton } from "@/components/SkeletonScreen";
 
 export const Route = createFileRoute("/_authenticated/agents")({
   component: AgentsPage,
 });
 
-type RunStatus = "running" | "scheduled" | "done" | "paused";
-
-interface AgentRun {
-  id: string;
-  name: string;
-  desc: string;
-  status: RunStatus;
-  progress: number;
-  nextRun?: string;
-  subAgents?: {
-    id: string;
-    name: string;
-    status: RunStatus;
-    progress: number;
-  }[];
-  privacyMode?: "private" | "auto";
-  outputs?: string;
-  history?: string[];
-  icon?: typeof Zap;
-}
-
-const INITIAL_RUNS: AgentRun[] = [
+const DEMO_AGENTS = [
   {
-    id: "morning",
+    id: "a1",
     name: "Morning Brief",
-    desc: "Summarise overnight inbox, calendar & news into a brief.",
-    status: "done",
+    desc: "Auto-generates a daily briefing with tasks, email highlights, and meeting prep.",
+    icon: Zap,
+    status: "running" as const,
+    progress: 78,
+    subAgents: [
+      { id: "a1.1", name: "Inbox Triage", status: "running" as const, progress: 60 },
+      { id: "a1.2", name: "Calendar Sync", status: "done" as const, progress: 100 },
+    ],
+    outputs: "3 urgent emails, 2 meetings today",
+    history: ["Started at 6:00 AM", "Triage complete", "Brief ready at 6:15 AM"],
+    privacyMode: "private" as const,
+    nextRun: "Tomorrow 6:00 AM",
+  },
+  {
+    id: "a2",
+    name: "Meeting Assistant",
+    desc: "Auto-joins calendar calls, transcribes, and extracts action items.",
+    icon: MessageSquare,
+    status: "scheduled" as const,
+    progress: 0,
+    subAgents: [
+      { id: "a2.1", name: "Transcription", status: "scheduled" as const, progress: 0 },
+      { id: "a2.2", name: "Action Extraction", status: "scheduled" as const, progress: 0 },
+    ],
+    outputs: undefined,
+    history: undefined,
+    privacyMode: "multi" as const,
+    nextRun: "10:00 AM",
+  },
+  {
+    id: "a3",
+    name: "Research Agent",
+    desc: "Scans web, notes, and docs for relevant topics.",
+    icon: Globe,
+    status: "done" as const,
     progress: 100,
-    nextRun: "Tomorrow 07:00",
     subAgents: [
-      { id: "sa1", name: "Inbox Triage", status: "done", progress: 100 },
-      { id: "sa2", name: "Calendar Read", status: "done", progress: 100 },
-      { id: "sa3", name: "News Digest", status: "done", progress: 100 },
+      { id: "a3.1", name: "Web Scan", status: "done" as const, progress: 100 },
+      { id: "a3.2", name: "Note Analysis", status: "done" as const, progress: 100 },
     ],
-    privacyMode: "private",
-    outputs: "Sent email brief. 4 action items flagged.",
-    history: [
-      "07:00 — started",
-      "07:02 — inbox triage done",
-      "07:04 — calendar read done",
-      "07:05 — brief sent",
-    ],
+    outputs: "12 sources, 3 relevant papers",
+    history: ["Started at 9:00 AM", "Scan complete", "Analysis done"],
+    privacyMode: "multi" as const,
+    nextRun: "Next Monday 9:00 AM",
   },
   {
-    id: "research",
-    name: "Weekly Research",
-    desc: "Deep-dive on industry trends, summarize to Notion.",
-    status: "running",
+    id: "a4",
+    name: "Email Composer",
+    desc: "Drafts context-aware replies, matching your tone.",
+    icon: Pen,
+    status: "paused" as const,
+    progress: 45,
+    subAgents: [
+      { id: "a4.1", name: "Tone Analysis", status: "done" as const, progress: 100 },
+      { id: "a4.2", name: "Draft Builder", status: "paused" as const, progress: 45 },
+    ],
+    outputs: "Draft ready for review",
+    history: ["Started at 8:00 AM", "Analysis complete", "Drafting paused"],
+    privacyMode: "private" as const,
+    nextRun: "Manual resume",
+  },
+  {
+    id: "a5",
+    name: "Calendar Sync",
+    desc: "Syncs and auto-schedules across tools.",
+    icon: Calendar,
+    status: "scheduled" as const,
+    progress: 0,
+    subAgents: [],
+    outputs: undefined,
+    history: undefined,
+    privacyMode: "private" as const,
+    nextRun: "In 2 hours",
+  },
+  {
+    id: "a6",
+    name: "Privacy Monitor",
+    desc: "Tracks on-device vs cloud data flow.",
+    icon: Shield,
+    status: "running" as const,
+    progress: 92,
+    subAgents: [{ id: "a6.1", name: "Audit Log", status: "running" as const, progress: 92 }],
+    outputs: "1 request in audit queue",
+    history: ["Started at launch", "Audit log created"],
+    privacyMode: "private" as const,
+    nextRun: "Continuous",
+  },
+  {
+    id: "a7",
+    name: "Skill Orchestrator",
+    desc: "Routes tasks to the right skill.",
+    icon: Sparkles,
+    status: "scheduled" as const,
+    progress: 0,
+    subAgents: [],
+    outputs: undefined,
+    history: undefined,
+    privacyMode: "multi" as const,
+    nextRun: "On demand",
+  },
+  {
+    id: "a8",
+    name: "Slack Agent",
+    desc: "Auto-responds to DMs, triages channels.",
+    icon: Activity,
+    status: "done" as const,
+    progress: 100,
+    subAgents: [{ id: "a8.1", name: "DM Auto-responder", status: "done" as const, progress: 100 }],
+    outputs: "2 DMs responded",
+    history: ["Started at 9:00 AM", "Completed"],
+    privacyMode: "multi" as const,
+    nextRun: "Next message",
+  },
+  {
+    id: "a9",
+    name: "User Profiler",
+    desc: "Updates your memory/profile continuously.",
+    icon: UserCircle,
+    status: "running" as const,
     progress: 65,
-    nextRun: "Fri 18:00",
     subAgents: [
-      { id: "sb1", name: "Source Scan", status: "done", progress: 100 },
-      { id: "sb2", name: "Trend Analysis", status: "running", progress: 60 },
-      { id: "sb3", name: "Notion Write", status: "scheduled", progress: 0 },
+      { id: "a9.1", name: "Preference Tracker", status: "running" as const, progress: 65 },
     ],
-    privacyMode: "auto",
-    outputs: "12 articles indexed. Trend analysis in progress.",
+    outputs: "2 new preferences detected",
+    history: ["Started at launch", "Profile updated"],
+    privacyMode: "private" as const,
+    nextRun: "Continuous",
   },
   {
-    id: "calendar",
-    name: "Meeting Prep",
-    desc: "Pull context, agendas, and briefs 15 min before each meeting.",
-    status: "scheduled",
-    progress: 0,
-    nextRun: "Today 14:00",
-    privacyMode: "private",
+    id: "a10",
+    name: "Data Sync",
+    desc: "Syncs local cache with cloud data.",
+    icon: HardDrive,
+    status: "paused" as const,
+    progress: 30,
+    subAgents: [{ id: "a10.1", name: "Cache Sync", status: "paused" as const, progress: 30 }],
+    outputs: "Sync paused",
+    history: ["Started at 10:00 AM", "Paused"],
+    privacyMode: "private" as const,
+    nextRun: "Manual resume",
   },
   {
-    id: "expense",
-    name: "Expense Report",
-    desc: "Auto-categorize transactions and draft monthly report.",
-    status: "paused",
+    id: "a11",
+    name: "UX Review",
+    desc: "Analyzes your design uploads for feedback.",
+    icon: Star,
+    status: "scheduled" as const,
     progress: 0,
-    nextRun: "Paused",
-    privacyMode: "auto",
+    subAgents: [],
+    outputs: undefined,
+    history: undefined,
+    privacyMode: "multi" as const,
+    nextRun: "Next upload",
+  },
+  {
+    id: "a12",
+    name: "Personal Brand",
+    desc: "Builds your online profile.",
+    icon: User,
+    status: "done" as const,
+    progress: 100,
+    subAgents: [{ id: "a12.1", name: "Bio Builder", status: "done" as const, progress: 100 }],
+    outputs: "Bio updated",
+    history: ["Started at 9:00 AM", "Completed"],
+    privacyMode: "multi" as const,
+    nextRun: "Next week",
+  },
+  {
+    id: "a13",
+    name: "Work Navigator",
+    desc: "Analyzes your career and suggests next steps.",
+    icon: Briefcase,
+    status: "running" as const,
+    progress: 55,
+    subAgents: [
+      { id: "a13.1", name: "Skill Gap Analyzer", status: "running" as const, progress: 55 },
+    ],
+    outputs: "Analysis in progress",
+    history: ["Started at 9:00 AM", "Analyzing"],
+    privacyMode: "private" as const,
+    nextRun: "Next month",
+  },
+  {
+    id: "a14",
+    name: "Technical Scribe",
+    desc: "Writes technical docs for you.",
+    icon: Pen,
+    status: "scheduled" as const,
+    progress: 0,
+    subAgents: [],
+    outputs: undefined,
+    history: undefined,
+    privacyMode: "multi" as const,
+    nextRun: "On demand",
+  },
+  {
+    id: "a15",
+    name: "System Monitor",
+    desc: "Keeps an eye on Sage health.",
+    icon: Cpu,
+    status: "running" as const,
+    progress: 88,
+    subAgents: [{ id: "a15.1", name: "Health Check", status: "running" as const, progress: 88 }],
+    outputs: "All systems green",
+    history: ["Started at launch", "Monitoring"],
+    privacyMode: "private" as const,
+    nextRun: "Continuous",
   },
 ];
 
-const STATUS_CONFIG: Record<
-  RunStatus,
-  { icon: typeof Loader2; label: string; color: string; bg: string }
-> = {
-  running: { icon: Loader2, label: "running", color: "#10b981", bg: "rgba(16, 185, 129, 0.15)" },
-  scheduled: { icon: Clock, label: "scheduled", color: "#f59e0b", bg: "rgba(245, 158, 11, 0.15)" },
-  done: { icon: CheckCircle2, label: "done", color: "#8b5cf6", bg: "rgba(139, 92, 246, 0.15)" },
-  paused: { icon: Pause, label: "paused", color: "#6b7280", bg: "rgba(255, 255, 255, 0.08)" },
+const STATUS_CONFIG = {
+  running: { label: "Running", color: "#3b82f6", bg: "rgba(59, 130, 246, 0.15)" },
+  scheduled: { label: "Scheduled", color: "#f59e0b", bg: "rgba(245, 158, 11, 0.15)" },
+  done: { label: "Done", color: "#10b981", bg: "rgba(16, 185, 129, 0.15)" },
+  paused: { label: "Paused", color: "#ec4899", bg: "rgba(236, 72, 153, 0.15)" },
+  error: { label: "Error", color: "#ef4444", bg: "rgba(239, 68, 68, 0.15)" },
 };
 
 function AgentsPage() {
   const { isDemoMode, activePersona } = useDemoMode();
   const personaAgents = activePersona?.agents ?? [];
-  const [runs, setRuns] = useState<AgentRun[]>(INITIAL_RUNS);
-  const [filter, setFilter] = useState<RunStatus | "all">("all");
+  const [filter, setFilter] = useState<"all" | "running" | "scheduled" | "done" | "paused">("all");
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [showNewModal, setShowNewModal] = useState(false);
-  const [showMeetingAgent, setShowMeetingAgent] = useState(false);
   const [isLoading] = useState(false);
 
-  const displayRuns = isDemoMode ? personaAgents : runs;
+  const displayAgents = isDemoMode ? personaAgents : DEMO_AGENTS;
 
-  const filtered = filter === "all" ? displayRuns : displayRuns.filter((r) => r.status === filter);
-  const running = displayRuns.filter((r) => r.status === "running").length;
-  const scheduled = displayRuns.filter((r) => r.status === "scheduled").length;
-  const done = displayRuns.filter((r) => r.status === "done").length;
+  const filtered =
+    filter === "all" ? displayAgents : displayAgents.filter((a) => a.status === filter);
+
+  const counts: Record<string, number> = {
+    all: displayAgents.length,
+    running: displayAgents.filter((a) => a.status === "running").length,
+    scheduled: displayAgents.filter((a) => a.status === "scheduled").length,
+    done: displayAgents.filter((a) => a.status === "done").length,
+    paused: displayAgents.filter((a) => a.status === "paused").length,
+  };
 
   const toggle = (id: string) => {
-    setRuns((prev) =>
-      prev.map((r) => {
-        if (r.id !== id) return r;
-        if (r.status === "running") return { ...r, status: "paused" as const, progress: 0 };
-        if (r.status === "paused") return { ...r, status: "running" as const, progress: 30 };
-        return r;
-      }),
-    );
-    toast.success("Agent updated");
+    const a = displayAgents.find((x) => x.id === id);
+    if (!a) return;
+    const running = a.status === "running";
+    toast.success(`${a.name} ${running ? "paused" : "resumed"}`);
   };
   const remove = (id: string) => {
-    setRuns((prev) => prev.filter((r) => r.id !== id));
-    toast.success("Agent deleted");
+    const a = displayAgents.find((x) => x.id === id);
+    if (!a) return;
+    toast.success(`${a.name} removed`);
   };
-
-  const active = runs.filter((r) => r.status === "running" || r.status === "scheduled").length;
 
   if (isLoading) return <AgentsSkeleton />;
 
   return (
     <div className="px-5 pt-14 pb-8">
-      <p className="text-[10px] text-white/50 uppercase tracking-widest">
-        {active} background {active === 1 ? "agent" : "agents"} active
-      </p>
-      <h1 className="text-3xl font-semibold tracking-tight mt-1 text-white">Agent Control</h1>
+      <div className="flex items-center gap-2 mb-1">
+        <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#3b82f6" }} />
+        <p className="text-[10px] text-white/50 uppercase tracking-widest">
+          {counts.running} active
+        </p>
+      </div>
+      <h1 className="text-3xl font-semibold tracking-tight mt-1 text-white">Agents</h1>
       <p className="text-sm text-white/50 mt-2">
-        Background agents run on your schedule and operate on your data with explicit consent.
+        Background workers running on your schedule. Each has its own model, memory, and
+        orchestration loop.
       </p>
 
-      {/* Stats row */}
-      <div className="flex gap-3 mt-5">
+      {/* Filter pills */}
+      <div className="flex gap-2 mt-5 overflow-x-auto hide-scrollbar pb-2">
         {(
           [
-            ["all", "All", displayRuns.length] as const,
-            ["running", "Running", running] as const,
-            ["scheduled", "Scheduled", scheduled] as const,
-            ["done", "Done", done] as const,
-          ] as [RunStatus | "all", string, number][]
-        ).map(([key, label, count]) => {
+            ["all", "All"],
+            ["running", "Running"],
+            ["scheduled", "Scheduled"],
+            ["done", "Done"],
+            ["paused", "Paused"],
+          ] as [string, string][]
+        ).map(([key, label]) => {
           const isActive = filter === key;
+          const count = counts[key] ?? 0;
           return (
             <button
               key={key}
-              onClick={() => setFilter(key)}
+              onClick={() => setFilter(key as typeof filter)}
               className="flex-1 rounded-2xl p-3 text-center text-[10px] font-medium transition-all"
               style={{
-                background: isActive ? "rgba(217, 70, 239, 0.2)" : "rgba(45, 27, 78, 0.5)",
+                background: isActive ? "rgba(59, 130, 246, 0.2)" : "rgba(17, 22, 35, 0.5)",
                 backdropFilter: "blur(16px)",
                 border: isActive
-                  ? "1px solid rgba(217, 70, 239, 0.3)"
+                  ? "1px solid rgba(59, 130, 246, 0.3)"
                   : "1px solid rgba(255, 255, 255, 0.05)",
-                color: isActive ? "#d946ef" : "rgba(255, 255, 255, 0.5)",
+                color: isActive ? "#3b82f6" : "rgba(255, 255, 255, 0.5)",
               }}
             >
-              <p className="text-lg font-bold" style={{ color: isActive ? "#d946ef" : "white" }}>
+              <p className="text-lg font-bold" style={{ color: isActive ? "#3b82f6" : "white" }}>
                 {count}
               </p>
               <p className="uppercase tracking-wider mt-1">{label}</p>
@@ -218,7 +356,7 @@ function AgentsPage() {
               key={r.id}
               className="rounded-2xl overflow-hidden"
               style={{
-                background: "rgba(45, 27, 78, 0.5)",
+                background: "rgba(17, 22, 35, 0.5)",
                 backdropFilter: "blur(16px)",
                 border: "1px solid rgba(255, 255, 255, 0.05)",
               }}

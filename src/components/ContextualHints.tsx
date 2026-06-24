@@ -45,19 +45,19 @@ export function HintBanner({
           key={hint.id}
           className="flex items-start gap-3 rounded-2xl px-4 py-3 animate-fade-in-up"
           style={{
-            background: "rgba(217, 70, 239, 0.12)",
+            background: "rgba(59, 130, 246, 0.12)",
             backdropFilter: "blur(16px)",
-            border: "1px solid rgba(217, 70, 239, 0.2)",
+            border: "1px solid rgba(59, 130, 246, 0.2)",
           }}
         >
-          <Lightbulb className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#d946ef" }} />
+          <Lightbulb className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "#3b82f6" }} />
           <div className="flex-1 min-w-0">
             <p className="text-[13px] text-white/80 leading-snug">{hint.text}</p>
             {hint.action && (
               <button
                 onClick={hint.action.onClick}
                 className="mt-1 text-[12px] font-medium"
-                style={{ color: "#d946ef" }}
+                style={{ color: "#3b82f6" }}
               >
                 {hint.action.label} →
               </button>

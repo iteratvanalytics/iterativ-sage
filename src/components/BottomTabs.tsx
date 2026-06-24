@@ -50,7 +50,7 @@ export function BottomTabs() {
           <div
             className="relative flex items-center justify-between px-4 py-2 rounded-[32px]"
             style={{
-              background: "rgba(45, 27, 78, 0.85)",
+              background: "rgba(17, 22, 35, 0.85)",
               backdropFilter: "blur(32px) saturate(180%)",
               WebkitBackdropFilter: "blur(32px) saturate(180%)",
               border: "1px solid rgba(255, 255, 255, 0.08)",
@@ -93,7 +93,7 @@ export function BottomTabs() {
               style={{
                 background: "var(--gradient-sunset)",
                 boxShadow:
-                  "0 4px 24px -4px rgba(245, 158, 11, 0.5), 0 0 0 3px rgba(45, 27, 78, 0.8)",
+                  "0 4px 24px -4px rgba(245, 158, 11, 0.5), 0 0 0 3px rgba(17, 22, 35, 0.8)",
               }}
               aria-label="New"
             >
@@ -121,7 +121,7 @@ export function BottomTabs() {
               onClick={() => newThread.mutate("Brief me on my day")}
               className="flex items-center gap-3 px-5 py-3 rounded-2xl text-white text-sm font-medium"
               style={{
-                background: "rgba(45, 27, 78, 0.95)",
+                background: "rgba(17, 22, 35, 0.95)",
                 backdropFilter: "blur(24px)",
                 border: "1px solid rgba(255, 255, 255, 0.1)",
                 boxShadow: "0 8px 32px -8px rgba(0, 0, 0, 0.5)",
@@ -139,7 +139,7 @@ export function BottomTabs() {
               onClick={() => newThread.mutate(undefined)}
               className="flex items-center gap-3 px-5 py-3 rounded-2xl text-white text-sm font-medium"
               style={{
-                background: "rgba(45, 27, 78, 0.95)",
+                background: "rgba(17, 22, 35, 0.95)",
                 backdropFilter: "blur(24px)",
                 border: "1px solid rgba(255, 255, 255, 0.1)",
                 boxShadow: "0 8px 32px -8px rgba(0, 0, 0, 0.5)",

@@ -47,7 +47,7 @@ export function ChatInput({
       <div
         className="rounded-[24px] p-2 flex items-end gap-2"
         style={{
-          background: "rgba(45, 27, 78, 0.85)",
+          background: "rgba(17, 22, 35, 0.85)",
           backdropFilter: "blur(32px) saturate(180%)",
           border: "1px solid rgba(255, 255, 255, 0.08)",
           boxShadow:
@@ -137,7 +137,7 @@ export function ChatInput({
           role="status"
           aria-live="polite"
           style={{
-            background: "rgba(45, 27, 78, 0.85)",
+            background: "rgba(17, 22, 35, 0.85)",
             backdropFilter: "blur(16px)",
             border: "1px solid rgba(255, 255, 255, 0.08)",
           }}

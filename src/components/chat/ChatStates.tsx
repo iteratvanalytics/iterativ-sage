@@ -29,7 +29,7 @@ export function EmptyState({ onChip }: { onChip: (s: string) => void }) {
     {
       label: "Create Image",
       icon: Image,
-      color: "#d946ef",
+      color: "#3b82f6",
       prompt: "Generate a stunning image",
       desc: "AI image generation",
     },
@@ -43,7 +43,7 @@ export function EmptyState({ onChip }: { onChip: (s: string) => void }) {
     {
       label: "Write Story",
       icon: Pen,
-      color: "#8b5cf6",
+      color: "#06b6d4",
       prompt: "Help me write a story",
       desc: "Creative writing",
     },
@@ -56,7 +56,7 @@ export function EmptyState({ onChip }: { onChip: (s: string) => void }) {
           className="w-20 h-20 rounded-full flex items-center justify-center"
           style={{
             background: "var(--gradient-voice)",
-            boxShadow: "0 0 60px rgba(217, 70, 239, 0.3)",
+            boxShadow: "0 0 60px rgba(59, 130, 246, 0.3)",
           }}
         >
           <SageLogo size={40} className="text-white" />
@@ -67,7 +67,7 @@ export function EmptyState({ onChip }: { onChip: (s: string) => void }) {
         />
         <div
           className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center"
-          style={{ background: "var(--gradient-sunset)", border: "2px solid #1a0a2e" }}
+          style={{ background: "var(--gradient-sunset)", border: "2px solid #0a0e17" }}
         >
           <Sparkles className="w-3.5 h-3.5 text-white" />
         </div>
@@ -78,7 +78,7 @@ export function EmptyState({ onChip }: { onChip: (s: string) => void }) {
         Ask a question, create content, or delegate tasks. I can write, research, design, and more.
       </p>
 
-      {/* Suggestion Cards — clearer with descriptions */}
+      {/* Suggestion Cards */}
       <div className="grid grid-cols-2 gap-2 w-full px-1">
         {suggestions.map((s) => (
           <button
@@ -86,7 +86,7 @@ export function EmptyState({ onChip }: { onChip: (s: string) => void }) {
             onClick={() => onChip(s.prompt)}
             className="rounded-2xl p-3.5 text-left active:scale-95 transition-all duration-200 hover:bg-white/[8%]"
             style={{
-              background: "rgba(45, 27, 78, 0.5)",
+              background: "rgba(17, 22, 35, 0.5)",
               backdropFilter: "blur(16px)",
               border: "1px solid rgba(255, 255, 255, 0.05)",
             }}
@@ -125,11 +125,11 @@ export function EmptyState({ onChip }: { onChip: (s: string) => void }) {
 export function ThinkingOrchestrator() {
   const [step, setStep] = useState(0);
   const steps = [
-    { icon: Cpu, text: "Analysing your request...", color: "#d946ef" },
+    { icon: Cpu, text: "Analysing your request...", color: "#3b82f6" },
     { icon: Zap, text: "Routing to best AI model...", color: "#f59e0b" },
-    { icon: Brain, text: "Retrieving your context...", color: "#8b5cf6" },
-    { icon: Shield, text: "Checking privacy settings...", color: "#10b981" },
-    { icon: Wifi, text: "Synthesising response...", color: "#06b6d4" },
+    { icon: Brain, text: "Retrieving your context...", color: "#10b981" },
+    { icon: Shield, text: "Checking privacy settings...", color: "#06b6d4" },
+    { icon: Wifi, text: "Synthesising response...", color: "#8b5cf6" },
   ];
   useEffect(() => {
     const id = setInterval(() => setStep((s) => (s + 1) % steps.length), 1200);
@@ -154,7 +154,7 @@ export function ThinkingOrchestrator() {
       <div
         className="rounded-2xl px-4 py-3 flex items-center gap-3"
         style={{
-          background: "rgba(45, 27, 78, 0.6)",
+          background: "rgba(17, 22, 35, 0.6)",
           backdropFilter: "blur(16px)",
           border: "1px solid rgba(255, 255, 255, 0.05)",
         }}

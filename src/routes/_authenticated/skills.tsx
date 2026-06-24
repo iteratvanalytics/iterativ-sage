@@ -34,7 +34,7 @@ const SKILLS = [
     desc: "Multi-source research with citations",
     icon: Globe,
     status: "connected" as const,
-    color: "#d946ef",
+    color: "#3b82f6",
   },
   {
     id: "email",
@@ -95,7 +95,7 @@ function SkillsPage() {
   return (
     <div className="px-5 pt-14 pb-8">
       <div className="flex items-center gap-2 mb-1">
-        <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#d946ef" }} />
+        <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#3b82f6" }} />
         <p className="text-[10px] text-white/50 uppercase tracking-widest">4 active</p>
       </div>
       <h1 className="text-3xl font-semibold tracking-tight mt-1 text-white">Skills Hub</h1>
@@ -107,14 +107,14 @@ function SkillsPage() {
         {displaySkills.map((s) => {
           const Icon = "icon" in s && s.icon ? (s.icon as typeof Sparkles) : Sparkles;
           const installed = s.status === "installed" || s.status === "connected";
-          const color = "color" in s ? s.color : "#d946ef";
+          const color = "color" in s ? s.color : "#3b82f6";
           return (
             <button
               key={s.id}
               onClick={() => toggle(s.id)}
               className="text-left active:scale-[0.98] transition-transform duration-150 rounded-2xl p-4"
               style={{
-                background: "rgba(45, 27, 78, 0.5)",
+                background: "rgba(17, 22, 35, 0.5)",
                 backdropFilter: "blur(16px)",
                 border: "1px solid rgba(255, 255, 255, 0.05)",
               }}

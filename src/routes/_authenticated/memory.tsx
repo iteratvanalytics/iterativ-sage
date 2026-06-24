@@ -46,7 +46,7 @@ const CATEGORY_META: Record<
   string,
   { color: string; bar: string; icon: typeof Brain; label: string }
 > = {
-  general: { color: "text-primary", bar: "bg-primary", icon: Brain, label: "General" },
+  general: { color: "text-blue-400", bar: "bg-blue-400", icon: Brain, label: "General" },
   preferences: {
     color: "text-amber-400",
     bar: "bg-amber-400",
@@ -62,8 +62,8 @@ const CATEGORY_META: Record<
   },
   workflows: { color: "text-cyan-400", bar: "bg-cyan-400", icon: Zap, label: "Workflows" },
   knowledge: {
-    color: "text-fuchsia-400",
-    bar: "bg-fuchsia-400",
+    color: "text-purple-400",
+    bar: "bg-purple-400",
     icon: BookOpen,
     label: "Knowledge",
   },
@@ -264,7 +264,7 @@ function MemoryPage() {
         <div
           className="flex-1 rounded-2xl p-3 text-center"
           style={{
-            background: "rgba(45, 27, 78, 0.5)",
+            background: "rgba(17, 22, 35, 0.5)",
             backdropFilter: "blur(16px)",
             border: "1px solid rgba(255, 255, 255, 0.05)",
           }}
@@ -275,12 +275,12 @@ function MemoryPage() {
         <div
           className="flex-1 rounded-2xl p-3 text-center"
           style={{
-            background: "rgba(45, 27, 78, 0.5)",
+            background: "rgba(17, 22, 35, 0.5)",
             backdropFilter: "blur(16px)",
             border: "1px solid rgba(255, 255, 255, 0.05)",
           }}
         >
-          <p className="text-2xl font-bold" style={{ color: "#d946ef" }}>
+          <p className="text-2xl font-bold" style={{ color: "#3b82f6" }}>
             {Object.keys(stats).length}
           </p>
           <p className="text-[10px] text-white/50 uppercase tracking-wider mt-1">Categories</p>
@@ -288,7 +288,7 @@ function MemoryPage() {
         <div
           className="flex-1 rounded-2xl p-3 text-center"
           style={{
-            background: "rgba(45, 27, 78, 0.5)",
+            background: "rgba(17, 22, 35, 0.5)",
             backdropFilter: "blur(16px)",
             border: "1px solid rgba(255, 255, 255, 0.05)",
           }}
@@ -305,7 +305,7 @@ function MemoryPage() {
         <div
           className="mt-4 rounded-2xl p-4"
           style={{
-            background: "rgba(45, 27, 78, 0.5)",
+            background: "rgba(17, 22, 35, 0.5)",
             backdropFilter: "blur(16px)",
             border: "1px solid rgba(255, 255, 255, 0.05)",
           }}
@@ -360,13 +360,13 @@ function MemoryPage() {
           onClick={() => setAddOpen((o) => !o)}
           className="w-full flex items-center justify-between px-4 py-3 rounded-2xl active:scale-[0.99] transition-transform"
           style={{
-            background: "rgba(45, 27, 78, 0.5)",
+            background: "rgba(17, 22, 35, 0.5)",
             backdropFilter: "blur(16px)",
             border: "1px solid rgba(255, 255, 255, 0.05)",
           }}
         >
           <div className="flex items-center gap-2">
-            <Plus className="w-4 h-4" style={{ color: "#d946ef" }} />
+            <Plus className="w-4 h-4" style={{ color: "#3b82f6" }} />
             <span className="text-sm font-medium text-white/90">Add a memory</span>
           </div>
           {addOpen ? (
@@ -385,7 +385,7 @@ function MemoryPage() {
               }}
               className="rounded-2xl p-3 space-y-2"
               style={{
-                background: "rgba(45, 27, 78, 0.7)",
+                background: "rgba(17, 22, 35, 0.7)",
                 backdropFilter: "blur(24px)",
                 border: "1px solid rgba(255, 255, 255, 0.08)",
               }}
@@ -408,7 +408,7 @@ function MemoryPage() {
                   }}
                 >
                   {CATEGORIES.map((c) => (
-                    <option key={c} value={c} className="bg-[#2d1b4e] capitalize text-white">
+                    <option key={c} value={c} className="bg-[#111623] capitalize text-white">
                       {CATEGORY_META[c].label}
                     </option>
                   ))}
@@ -445,7 +445,7 @@ function MemoryPage() {
           onClick={() => setActiveFilter("all")}
           className={`px-3 py-1.5 rounded-full text-[10px] font-medium whitespace-nowrap transition-all text-white`}
           style={{
-            background: activeFilter === "all" ? "#d946ef" : "rgba(255, 255, 255, 0.06)",
+            background: activeFilter === "all" ? "#3b82f6" : "rgba(255, 255, 255, 0.06)",
             border: "1px solid rgba(255, 255, 255, 0.05)",
           }}
         >
@@ -457,7 +457,7 @@ function MemoryPage() {
             onClick={() => setActiveFilter(c)}
             className={`px-3 py-1.5 rounded-full text-[10px] font-medium capitalize whitespace-nowrap transition-all flex items-center gap-1 text-white`}
             style={{
-              background: activeFilter === c ? "#d946ef" : "rgba(255, 255, 255, 0.06)",
+              background: activeFilter === c ? "#3b82f6" : "rgba(255, 255, 255, 0.06)",
               border: "1px solid rgba(255, 255, 255, 0.05)",
             }}
           >
@@ -489,7 +489,7 @@ function MemoryPage() {
                     border: "1px solid rgba(255, 255, 255, 0.05)",
                   }}
                 >
-                  <Sparkles className="w-3.5 h-3.5 inline mr-1.5" style={{ color: "#d946ef" }} />
+                  <Sparkles className="w-3.5 h-3.5 inline mr-1.5" style={{ color: "#3b82f6" }} />
                   Seed example memories
                 </button>
               </>
@@ -536,7 +536,7 @@ function MemoryPage() {
                           updateMemory.mutate({ id: m.id, content: editContent });
                         if (e.key === "Escape") setEditId(null);
                       }}
-                      className="flex-1 bg-white/5 rounded-lg px-2 py-1 text-sm outline-none border border-primary/30 focus:border-primary transition-colors"
+                      className="flex-1 bg-white/5 rounded-lg px-2 py-1 text-sm outline-none border border-blue-400/30 focus:border-blue-400 transition-colors"
                     />
                     <button
                       onClick={() => updateMemory.mutate({ id: m.id, content: editContent })}
@@ -564,14 +564,14 @@ function MemoryPage() {
                       setEditId(m.id);
                       setEditContent(m.content);
                     }}
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-blue-400 hover:bg-blue-400/10 transition-colors"
                     title="Edit"
                   >
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => del.mutate(m.id)}
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-red-400 hover:bg-red-400/10 transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

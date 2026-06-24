@@ -97,7 +97,9 @@ export function VoiceOrb({ isActive, className = "" }: { isActive: boolean; clas
         className={`relative w-16 h-16 rounded-full flex items-center justify-center ${isActive ? "animate-breathe" : ""}`}
         style={{
           background: isActive ? "var(--gradient-hero)" : "var(--gradient-sunset)",
-          boxShadow: isActive ? "0 0 40px #d946ef/0.5" : "0 4px 24px -4px #f59e0b/0.4",
+          boxShadow: isActive
+            ? "0 0 40px rgba(59, 130, 246, 0.5)"
+            : "0 4px 24px -4px rgba(245, 158, 11, 0.4)",
         }}
       >
         <VoiceWaveAnimation isActive={isActive} size="sm" />

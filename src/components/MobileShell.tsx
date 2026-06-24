@@ -13,7 +13,7 @@ export function MobileShell({ children }: { children: ReactNode }) {
       <div className="pointer-events-none fixed inset-0 -z-10">
         <div
           className="absolute -top-32 -right-24 w-[380px] h-[380px] rounded-full opacity-30 blur-3xl"
-          style={{ background: "radial-gradient(circle, #d946ef, #8b5cf6, transparent)" }}
+          style={{ background: "radial-gradient(circle, #3b82f6, #10b981, transparent)" }}
         />
         <div
           className="absolute -bottom-40 -left-32 w-[420px] h-[420px] rounded-full opacity-25 blur-3xl"

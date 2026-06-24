@@ -61,7 +61,7 @@ const QUICK_STARTS = [
     label: "Create Image",
     icon: Image,
     prompt: "Generate a stunning image",
-    color: "#d946ef",
+    color: "#3b82f6",
     desc: "AI image generation",
   },
   {
@@ -69,7 +69,7 @@ const QUICK_STARTS = [
     label: "Voice Chat",
     icon: Mic,
     prompt: "Let's talk by voice",
-    color: "#ec4899",
+    color: "#10b981",
     desc: "Hands-free conversation",
   },
   {
@@ -77,7 +77,7 @@ const QUICK_STARTS = [
     label: "Write Something",
     icon: Pen,
     prompt: "Help me write something",
-    color: "#8b5cf6",
+    color: "#06b6d4",
     desc: "Drafts, stories, more",
   },
 ];
@@ -94,21 +94,21 @@ const RECENT_TEMPLATES = [
     title: "Generate AI Images",
     subtitle: "Create stunning visuals instantly.",
     icon: Wand2,
-    color: "#d946ef",
+    color: "#3b82f6",
   },
   {
     id: 2,
     title: "Generate AI Videos",
     subtitle: "Transform ideas into videos.",
     icon: Video,
-    color: "#8b5cf6",
+    color: "#06b6d4",
   },
   {
     id: 3,
     title: "Create Voice Magic",
     subtitle: "Generate unique AI voices.",
     icon: Mic,
-    color: "#ec4899",
+    color: "#10b981",
   },
   {
     id: 4,
@@ -122,7 +122,7 @@ const RECENT_TEMPLATES = [
     title: "Design a Logo",
     subtitle: "Create brand logos with AI.",
     icon: ImageIcon,
-    color: "#d946ef",
+    color: "#3b82f6",
   },
 ];
 
@@ -242,7 +242,7 @@ function HomePage() {
                 {activePersona?.profile.name?.charAt(0) ?? "S"}
               </div>
             </div>
-            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-[#1a0a2e]" />
+            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-[#0a0e17]" />
           </div>
           <div>
             <p className="text-[11px] text-white/50">{getGreeting(activePersona?.profile.name)}</p>
@@ -307,7 +307,7 @@ function HomePage() {
             onClick={() => newThread.mutate(item.prompt)}
             className="relative rounded-2xl p-4 text-left active:scale-[0.98] transition-all duration-200 group"
             style={{
-              background: "rgba(45, 27, 78, 0.5)",
+              background: "rgba(17, 22, 35, 0.5)",
               backdropFilter: "blur(16px)",
               border: "1px solid rgba(255, 255, 255, 0.05)",
             }}
@@ -457,7 +457,7 @@ function HomePage() {
             onClick={() => newThread.mutate(file.title)}
             className="flex items-center gap-3 p-3 rounded-2xl cursor-pointer active:scale-[0.99] transition-transform"
             style={{
-              background: "rgba(45, 27, 78, 0.5)",
+              background: "rgba(17, 22, 35, 0.5)",
               backdropFilter: "blur(16px)",
               border: "1px solid rgba(255, 255, 255, 0.05)",
             }}
@@ -530,7 +530,7 @@ function HomePage() {
           <button
             onClick={() => refetch()}
             className="text-sm font-medium"
-            style={{ color: "#d946ef" }}
+            style={{ color: "#3b82f6" }}
           >
             Retry
           </button>
@@ -548,7 +548,7 @@ function HomePage() {
                 <button
                   onClick={() => setQ("")}
                   className="mt-2 text-sm font-medium"
-                  style={{ color: "#d946ef" }}
+                  style={{ color: "#3b82f6" }}
                 >
                   Clear search
                 </button>
@@ -580,7 +580,7 @@ function HomePage() {
               params={{ threadId: t.id }}
               className="block rounded-2xl p-4 active:scale-[0.99] transition-transform"
               style={{
-                background: "rgba(45, 27, 78, 0.5)",
+                background: "rgba(17, 22, 35, 0.5)",
                 backdropFilter: "blur(16px)",
                 border: "1px solid rgba(255, 255, 255, 0.05)",
               }}
@@ -589,7 +589,7 @@ function HomePage() {
                 <div className="flex items-center gap-2 min-w-0">
                   <div
                     className="w-2 h-2 rounded-full shrink-0"
-                    style={{ background: "#d946ef" }}
+                    style={{ background: "#3b82f6" }}
                     aria-hidden="true"
                   />
                   <p className="font-medium text-sm text-white/90 truncate">{t.title}</p>
@@ -614,7 +614,7 @@ function HomePage() {
                 background: "rgba(255, 255, 255, 0.06)",
                 backdropFilter: "blur(16px)",
                 border: "1px solid rgba(255, 255, 255, 0.05)",
-                color: "#d946ef",
+                color: "#3b82f6",
               }}
             >
               Load more ({filtered.length - visible} more)
