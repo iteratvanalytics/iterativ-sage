@@ -400,3 +400,11 @@
 .animate-breathe {
   animation: breathe 2s ease-in-out infinite;
 }
+
+@keyframes sage-spin {
+  to { transform: rotate(360deg); }
+}
+.sage-spin {
+  animation: sage-spin 8s linear infinite;
+  transform-origin: center;
+}
