@@ -347,7 +347,7 @@ function AgentsPage() {
             No {filter === "all" ? "" : filter} agents.
           </li>
         )}
-        {filtered.map((r) => {
+        {filtered.map((r: any) => {
           const cfg = STATUS_CONFIG[r.status];
           const isExpanded = expanded === r.id;
           const Icon = r.icon ?? Bot;
