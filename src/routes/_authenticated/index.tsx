@@ -5,8 +5,36 @@ import { getCurrentUserId, DEMO_USER_ID } from "@/lib/auth";
 import { useDemoMode } from "@/lib/demo-mode";
 import { DemoProfileSwitcher } from "@/components/DemoProfileSwitcher";
 import { VoiceWaveAnimation } from "@/components/VoiceWaveAnimation";
+import { useContextualHints, HintBanner } from "@/components/ContextualHints";
 import { SageLogo } from "@/components/SageLogo";
-import { Plus, Search, Sparkles, Globe, Mail, Calendar, MessageSquare, Zap, Bot, Brain, Shield, ArrowRight, ChevronRight, Mic, Video, TriangleAlert as AlertTriangle, CircleUser as UserCircle, Bell, Image, FileText, Headphones, Wand as Wand2, Music, Pen, Image as ImageIcon, X, ArrowUpRight, Clock } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Sparkles,
+  MessageSquare,
+  Zap,
+  Bot,
+  Brain,
+  ArrowRight,
+  Mic,
+  Video,
+  TriangleAlert as AlertTriangle,
+  CircleUser as UserCircle,
+  Bell,
+  Image,
+  Wand as Wand2,
+  Pen,
+  Image as ImageIcon,
+  X,
+  ArrowUpRight,
+  Compass,
+  Lightbulb,
+  Volume2,
+  Headphones,
+  Send,
+  Clock,
+  TrendingUp,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
@@ -19,35 +47,48 @@ export const Route = createFileRoute("/_authenticated/")({
   component: HomePage,
 });
 
-const STUDIO_CARDS = [
+const QUICK_STARTS = [
   {
-    id: "voice",
-    title: "Voice Studio",
-    subtitle: "Create Stunning Voice",
-    icon: Mic,
-    size: "large" as const,
-    gradient: "linear-gradient(135deg, #d946ef 0%, #8b5cf6 50%, #4a1d6b 100%)",
-    waveBars: true,
+    id: "brief",
+    label: "Daily Brief",
+    icon: Compass,
+    prompt: "Brief me on my day",
+    color: "#f59e0b",
+    desc: "Get a morning summary",
   },
   {
     id: "image",
-    title: "Image Studio",
-    subtitle: "Create Stunning Visuals",
+    label: "Create Image",
     icon: Image,
-    size: "small" as const,
-    gradient: "none",
+    prompt: "Generate a stunning image",
+    color: "#d946ef",
+    desc: "AI image generation",
   },
   {
-    id: "video",
-    title: "Video Studio",
-    subtitle: "Create Stunning Videos",
-    icon: Video,
-    size: "small" as const,
-    gradient: "none",
+    id: "voice",
+    label: "Voice Chat",
+    icon: Mic,
+    prompt: "Let's talk by voice",
+    color: "#ec4899",
+    desc: "Hands-free conversation",
+  },
+  {
+    id: "write",
+    label: "Write Something",
+    icon: Pen,
+    prompt: "Help me write something",
+    color: "#8b5cf6",
+    desc: "Drafts, stories, more",
   },
 ];
 
-const RECENT_FILES = [
+const SUGGESTION_CHIPS = [
+  { label: "Generate Voice", icon: Mic },
+  { label: "Generate Image", icon: Image },
+  { label: "AI Chat", icon: Sparkles },
+];
+
+const RECENT_TEMPLATES = [
   {
     id: 1,
     title: "Generate AI Images",
@@ -85,12 +126,6 @@ const RECENT_FILES = [
   },
 ];
 
-const QUICK_CHIPS = [
-  { label: "Generate Voice", icon: Mic },
-  { label: "Generate Image", icon: Image },
-  { label: "AI", icon: Sparkles },
-];
-
 function getGreeting(name?: string) {
   const h = new Date().getHours();
   const base = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
@@ -105,6 +140,7 @@ function HomePage() {
   const [showDemoSwitcher, setShowDemoSwitcher] = useState(false);
   const [showRecent, setShowRecent] = useState(false);
   const { isDemoMode, activePersona } = useDemoMode();
+  const { dismissed, dismiss } = useContextualHints();
   const PAGE_SIZE = 20;
   const [visible, setVisible] = useState(PAGE_SIZE);
 
@@ -175,12 +211,23 @@ function HomePage() {
   }, [q]);
 
   const visibleThreads = filtered.slice(0, visible);
+  const hasConversations = displayThreads.length > 0;
+
+  // Build contextual hints
+  const hints: { id: string; text: string; action?: { label: string; onClick: () => void } }[] = [];
+  if (!hasConversations && !dismissed.includes("first-chat")) {
+    hints.push({
+      id: "first-chat",
+      text: "Welcome! Tap any card below to start your first AI conversation.",
+      action: { label: "Try a quick start", onClick: () => newThread.mutate("Brief me on my day") },
+    });
+  }
 
   if (isLoading) return <HomeSkeleton />;
 
   return (
     <div className="px-5 pt-14 pb-8">
-      {/* Header with avatar */}
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -198,10 +245,7 @@ function HomePage() {
             <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-[#1a0a2e]" />
           </div>
           <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] text-white/50">Welcome</span>
-              <span className="text-[11px]">👋</span>
-            </div>
+            <p className="text-[11px] text-white/50">{getGreeting(activePersona?.profile.name)}</p>
             <p className="text-sm font-semibold text-white/90">
               {activePersona?.profile.name ?? "Sage User"}
             </p>
@@ -232,54 +276,86 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Main headline */}
-      <h1 className="text-[28px] font-bold tracking-tight leading-tight mb-5">
-        <span className="text-white">Your AI Creative</span>
-        <br />
-        <span className="text-white/60">Journey Starts Up</span>
-      </h1>
+      {/* Contextual hints */}
+      <HintBanner hints={hints.filter((h) => !dismissed.includes(h.id))} onDismiss={dismiss} />
 
-      {/* Action chips */}
-      <div className="flex items-center gap-2 mb-8 overflow-x-auto hide-scrollbar pb-1">
-        {QUICK_CHIPS.map((chip) => (
+      {/* Main headline — different for new vs returning users */}
+      {hasConversations ? (
+        <h1 className="text-[26px] font-bold tracking-tight leading-tight mb-5">
+          <span className="text-white">What would you like</span>
+          <br />
+          <span className="text-white/60">to create today?</span>
+        </h1>
+      ) : (
+        <div className="mb-6">
+          <h1 className="text-[26px] font-bold tracking-tight leading-tight mb-2">
+            <span className="text-white">Your AI Creative</span>
+            <br />
+            <span className="text-white/60">Journey Starts Here</span>
+          </h1>
+          <p className="text-sm text-white/50 leading-relaxed">
+            Choose a quick start below or type anything to begin creating with AI.
+          </p>
+        </div>
+      )}
+
+      {/* Quick Start Cards — prominent grid for new users */}
+      <div className="grid grid-cols-2 gap-3 mb-8">
+        {QUICK_STARTS.map((item) => (
           <button
-            key={chip.label}
-            onClick={() => newThread.mutate(chip.label)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium text-white/80 shrink-0 transition-all duration-200 hover:text-white"
+            key={item.id}
+            onClick={() => newThread.mutate(item.prompt)}
+            className="relative rounded-2xl p-4 text-left active:scale-[0.98] transition-all duration-200 group"
             style={{
-              background: "rgba(255, 255, 255, 0.08)",
+              background: "rgba(45, 27, 78, 0.5)",
               backdropFilter: "blur(16px)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
+              border: "1px solid rgba(255, 255, 255, 0.05)",
             }}
           >
-            <chip.icon className="w-4 h-4" />
-            {chip.label}
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-transform group-hover:scale-110"
+              style={{ background: `${item.color}20` }}
+            >
+              <item.icon className="w-5 h-5" style={{ color: item.color }} />
+            </div>
+            <p className="text-sm font-semibold text-white/90 mb-0.5">{item.label}</p>
+            <p className="text-[11px] text-white/40">{item.desc}</p>
           </button>
         ))}
-        <button
-          onClick={() => newThread.mutate(undefined)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium text-white/80 shrink-0 transition-all duration-200 hover:text-white"
-          style={{
-            background: "rgba(255, 255, 255, 0.08)",
-            backdropFilter: "blur(16px)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-          }}
-        >
-          <Sparkles className="w-4 h-4" />
-          AI
-        </button>
       </div>
+
+      {/* Action chips for returning users */}
+      {hasConversations && (
+        <div className="flex items-center gap-2 mb-8 overflow-x-auto hide-scrollbar pb-1">
+          {SUGGESTION_CHIPS.map((chip) => (
+            <button
+              key={chip.label}
+              onClick={() => newThread.mutate(chip.label)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium text-white/80 shrink-0 transition-all duration-200 hover:text-white"
+              style={{
+                background: "rgba(255, 255, 255, 0.08)",
+                backdropFilter: "blur(16px)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+              }}
+            >
+              <chip.icon className="w-4 h-4" />
+              {chip.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Start Creating */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-white">Start Creating</h2>
       </div>
 
-      {/* Studio Cards Grid */}
+      {/* Studio Cards */}
       <div className="grid grid-cols-2 gap-3 mb-8">
-        {/* Voice Studio - Large card spanning full width */}
+        {/* Voice Studio — large card */}
         <div
-          className="col-span-2 relative rounded-3xl overflow-hidden p-5"
+          className="col-span-2 relative rounded-3xl overflow-hidden p-5 cursor-pointer"
+          onClick={() => newThread.mutate("Let's use voice chat")}
           style={{
             background: "var(--gradient-voice)",
             boxShadow: "0 8px 32px -8px rgba(217, 70, 239, 0.4)",
@@ -297,7 +373,6 @@ function HomePage() {
             <h3 className="text-lg font-semibold text-white mb-1">Voice Studio</h3>
             <p className="text-sm text-white/60">Create Stunning Voice</p>
           </div>
-          {/* Waveform visualization */}
           <div className="flex items-end gap-1 h-10 mt-2">
             {Array.from({ length: 30 }).map((_, i) => {
               const height = Math.sin(i * 0.5) * 0.5 + 0.5;
@@ -364,23 +439,23 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Recent Files */}
+      {/* Recent Templates */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-white">Recent Files</h2>
+        <h2 className="text-lg font-semibold text-white">Popular Templates</h2>
         <button
           onClick={() => setShowRecent(!showRecent)}
           className="text-sm text-white/50 hover:text-white/80 transition-colors"
         >
-          See All
+          {showRecent ? "Show Less" : "See All"}
         </button>
       </div>
 
       <div className="space-y-2 mb-8">
-        {RECENT_FILES.slice(0, showRecent ? RECENT_FILES.length : 3).map((file) => (
+        {RECENT_TEMPLATES.slice(0, showRecent ? RECENT_TEMPLATES.length : 3).map((file) => (
           <div
             key={file.id}
             onClick={() => newThread.mutate(file.title)}
-            className="flex items-center gap-3 p-3 rounded-2xl cursor-pointer"
+            className="flex items-center gap-3 p-3 rounded-2xl cursor-pointer active:scale-[0.99] transition-transform"
             style={{
               background: "rgba(45, 27, 78, 0.5)",
               backdropFilter: "blur(16px)",
@@ -410,9 +485,10 @@ function HomePage() {
       {/* Conversations Section */}
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-lg font-semibold text-white">Conversations</h2>
-        <span className="text-[11px] text-white/40">{threads.length}</span>
+        <span className="text-[11px] text-white/40">{threads.length} total</span>
       </div>
 
+      {/* Search */}
       <div className="relative mb-3">
         <Search
           className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-white/40"
@@ -421,7 +497,7 @@ function HomePage() {
         <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search conversations"
+          placeholder="Search your conversations..."
           aria-label="Search conversations"
           className="h-11 rounded-2xl border-0 pl-9 pr-9 text-white placeholder:text-white/30"
           style={{
@@ -462,11 +538,41 @@ function HomePage() {
       )}
 
       <ul className="space-y-2 pb-6">
+        {/* Empty state — much more helpful */}
         {filtered.length === 0 && !isError && (
-          <li className="text-sm text-white/40 text-center py-10">
-            {q ? "No conversations match your search." : "No conversations yet — start one above."}
+          <li className="text-center py-10">
+            {q ? (
+              <div>
+                <Search className="w-8 h-8 mx-auto mb-3 text-white/20" />
+                <p className="text-sm text-white/50">No conversations match "{q}"</p>
+                <button
+                  onClick={() => setQ("")}
+                  className="mt-2 text-sm font-medium"
+                  style={{ color: "#d946ef" }}
+                >
+                  Clear search
+                </button>
+              </div>
+            ) : (
+              <div>
+                <MessageSquare className="w-10 h-10 mx-auto mb-3 text-white/15" />
+                <p className="text-sm text-white/50 mb-1">No conversations yet</p>
+                <p className="text-[11px] text-white/30 mb-4">
+                  Tap any card above to start chatting
+                </p>
+                <button
+                  onClick={() => newThread.mutate("Hello, let's chat!")}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-white glow-button"
+                  style={{ background: "var(--gradient-hero)" }}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Start First Chat
+                </button>
+              </div>
+            )}
           </li>
         )}
+
         {visibleThreads.map((t) => (
           <li key={t.id}>
             <Link

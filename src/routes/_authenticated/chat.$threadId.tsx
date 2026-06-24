@@ -304,7 +304,9 @@ function ChatPage() {
           </div>
         )}
         {messages.length === 0 && !thinking && !messagesError && (
-          <EmptyState onChip={handleChipClick} />
+          <div className="flex flex-col items-center justify-center flex-1 px-4">
+            <EmptyState onChip={handleChipClick} />
+          </div>
         )}
         {messages.map((m) => (
           <MessageBubble
