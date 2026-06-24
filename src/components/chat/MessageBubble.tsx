@@ -13,7 +13,12 @@ export type Msg = {
 };
 
 export function MessageBubble({
-  msg, showReasoning, setShowReasoning, onCopy, copiedId, onChip,
+  msg,
+  showReasoning,
+  setShowReasoning,
+  onCopy,
+  copiedId,
+  onChip,
 }: {
   msg: Msg;
   showReasoning: string | null;
@@ -26,10 +31,14 @@ export function MessageBubble({
 
   if (msg.role === "user") {
     return (
-      <div className="flex justify-end animate-in fade-in slide-in-from-bottom-1" role="article" aria-label="Your message">
+      <div
+        className="flex justify-end animate-in fade-in slide-in-from-bottom-1"
+        role="article"
+        aria-label="Your message"
+      >
         <div
           className="rounded-[20px] rounded-br-md px-4 py-2.5 max-w-[80%] text-[15px] leading-snug"
-          style={{ background: "var(--gradient-hero)", color: "var(--primary-foreground)" }}
+          style={{ background: "var(--gradient-hero)", color: "#ffffff" }}
         >
           {msg.content}
         </div>
@@ -37,9 +46,16 @@ export function MessageBubble({
     );
   }
   return (
-    <div className="flex gap-2 max-w-[96%] animate-in fade-in slide-in-from-bottom-1" role="article" aria-label="Message from Sage">
-      <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-primary mt-1" style={{ background: 'var(--gradient-orb)' }}>
-        <SageLogo size={16} className="text-primary" />
+    <div
+      className="flex gap-2 max-w-[96%] animate-in fade-in slide-in-from-bottom-1"
+      role="article"
+      aria-label="Message from Sage"
+    >
+      <div
+        className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center mt-1"
+        style={{ background: "var(--gradient-hero)" }}
+      >
+        <SageLogo size={16} className="text-white" />
       </div>
       <div className="flex-1 space-y-2 min-w-0">
         {msg.parts.map((p, i) => (
@@ -55,26 +71,28 @@ export function MessageBubble({
         {/* Feedback row */}
         <div className="flex items-center gap-2 pt-1">
           <button
-            onClick={() => { onCopy(msg.content, msg.id); }}
+            onClick={() => {
+              onCopy(msg.content, msg.id);
+            }}
             aria-label="Copy message"
-            className="flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+            className="flex items-center gap-1 text-[10px] text-white/40 hover:text-white/70 transition-colors"
           >
             <Copy className="w-3 h-3" aria-hidden="true" />
             {copiedId === msg.id ? "Copied" : "Copy"}
           </button>
           <button
-            onClick={() => setLiked(v => v === true ? null : true)}
+            onClick={() => setLiked((v) => (v === true ? null : true))}
             aria-label="Good response"
             aria-pressed={liked === true}
-            className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors ${liked === true ? "text-emerald-400" : "text-muted-foreground/40 hover:text-muted-foreground"}`}
+            className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors ${liked === true ? "text-emerald-400" : "text-white/30 hover:text-white/60"}`}
           >
             <ThumbsUp className="w-3 h-3" aria-hidden="true" />
           </button>
           <button
-            onClick={() => setLiked(v => v === false ? null : false)}
+            onClick={() => setLiked((v) => (v === false ? null : false))}
             aria-label="Bad response"
             aria-pressed={liked === false}
-            className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors ${liked === false ? "text-rose-400" : "text-muted-foreground/40 hover:text-muted-foreground"}`}
+            className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors ${liked === false ? "text-rose-400" : "text-white/30 hover:text-white/60"}`}
           >
             <ThumbsDown className="w-3 h-3" aria-hidden="true" />
           </button>

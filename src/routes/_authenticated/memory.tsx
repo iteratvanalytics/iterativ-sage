@@ -242,16 +242,17 @@ function MemoryPage() {
 
   return (
     <div className="px-5 pt-14 pb-8">
-      <p className="text-xs text-muted-foreground uppercase tracking-widest">
-        Persistent Knowledge
-      </p>
-      <h1 className="text-3xl font-semibold tracking-tight mt-1">Memory</h1>
-      <p className="text-sm text-muted-foreground mt-1.5">
+      <p className="text-[10px] text-white/50 uppercase tracking-widest">Persistent Knowledge</p>
+      <h1 className="text-3xl font-semibold tracking-tight mt-1 text-white">Memory</h1>
+      <p className="text-sm text-white/50 mt-1.5">
         What Sage remembers about you across every session.
       </p>
 
       {/* Privacy note */}
-      <div className="mt-4 flex items-start gap-2 px-3 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-400/90 text-[11px]">
+      <div
+        className="mt-4 flex items-start gap-2 px-3 py-2.5 rounded-xl text-[11px]"
+        style={{ background: "rgba(16, 185, 129, 0.15)", color: "#10b981" }}
+      >
         <Shield className="w-3.5 h-3.5 shrink-0 mt-0.5" />
         <span>
           Stored locally, encrypted on-device. Deletion is real — no shadow copy retained.
@@ -260,31 +261,56 @@ function MemoryPage() {
 
       {/* Stats row */}
       <div className="flex gap-3 mt-5">
-        <div className="flex-1 glass rounded-2xl p-3 text-center">
-          <p className="text-2xl font-bold">{memories.length}</p>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Total</p>
+        <div
+          className="flex-1 rounded-2xl p-3 text-center"
+          style={{
+            background: "rgba(45, 27, 78, 0.5)",
+            backdropFilter: "blur(16px)",
+            border: "1px solid rgba(255, 255, 255, 0.05)",
+          }}
+        >
+          <p className="text-2xl font-bold text-white">{memories.length}</p>
+          <p className="text-[10px] text-white/50 uppercase tracking-wider mt-1">Total</p>
         </div>
-        <div className="flex-1 glass rounded-2xl p-3 text-center">
-          <p className="text-2xl font-bold text-primary">{Object.keys(stats).length}</p>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">
-            Categories
+        <div
+          className="flex-1 rounded-2xl p-3 text-center"
+          style={{
+            background: "rgba(45, 27, 78, 0.5)",
+            backdropFilter: "blur(16px)",
+            border: "1px solid rgba(255, 255, 255, 0.05)",
+          }}
+        >
+          <p className="text-2xl font-bold" style={{ color: "#d946ef" }}>
+            {Object.keys(stats).length}
           </p>
+          <p className="text-[10px] text-white/50 uppercase tracking-wider mt-1">Categories</p>
         </div>
-        <div className="flex-1 glass rounded-2xl p-3 text-center">
-          <p className="text-2xl font-bold text-amber-400">{Math.round(usagePct)}%</p>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">
-            Capacity
+        <div
+          className="flex-1 rounded-2xl p-3 text-center"
+          style={{
+            background: "rgba(45, 27, 78, 0.5)",
+            backdropFilter: "blur(16px)",
+            border: "1px solid rgba(255, 255, 255, 0.05)",
+          }}
+        >
+          <p className="text-2xl font-bold" style={{ color: "#f59e0b" }}>
+            {Math.round(usagePct)}%
           </p>
+          <p className="text-[10px] text-white/50 uppercase tracking-wider mt-1">Capacity</p>
         </div>
       </div>
 
       {/* Category breakdown bar */}
       {memories.length > 0 && (
-        <div className="mt-4 glass rounded-2xl p-4">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3">
-            Distribution
-          </p>
-          {/* Segmented bar */}
+        <div
+          className="mt-4 rounded-2xl p-4"
+          style={{
+            background: "rgba(45, 27, 78, 0.5)",
+            backdropFilter: "blur(16px)",
+            border: "1px solid rgba(255, 255, 255, 0.05)",
+          }}
+        >
+          <p className="text-[10px] text-white/50 uppercase tracking-wider mb-3">Distribution</p>
           <div className="flex h-2 rounded-full overflow-hidden gap-px mb-3">
             {CATEGORIES.filter((c) => stats[c]).map((c) => (
               <div
@@ -295,29 +321,33 @@ function MemoryPage() {
               />
             ))}
           </div>
-          {/* Legend */}
           <div className="flex flex-wrap gap-x-3 gap-y-1.5">
             {CATEGORIES.filter((c) => stats[c]).map((c) => (
               <div key={c} className="flex items-center gap-1.5">
                 <div className={`w-2 h-2 rounded-full ${CATEGORY_META[c].bar}`} />
-                <span className="text-[11px] text-muted-foreground">
-                  {CATEGORY_META[c].label} <span className="text-foreground/60">{stats[c]}</span>
+                <span className="text-[11px] text-white/50">
+                  {CATEGORY_META[c].label} <span className="text-white/60">{stats[c]}</span>
                 </span>
               </div>
             ))}
           </div>
-          {/* Usage bar */}
           <div className="mt-3 pt-3 border-t border-white/5">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] text-muted-foreground">Memory usage</span>
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-[10px] text-white/40">Memory usage</span>
+              <span className="text-[10px] text-white/40">
                 {memories.length}/{totalBudget}
               </span>
             </div>
-            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-1.5 rounded-full overflow-hidden"
+              style={{ background: "rgba(255, 255, 255, 0.05)" }}
+            >
               <div
-                className={`h-full rounded-full transition-all duration-500 ${usagePct > 80 ? "bg-amber-400" : "bg-primary"}`}
-                style={{ width: `${usagePct}%` }}
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${usagePct}%`,
+                  background: usagePct > 80 ? "#f59e0b" : "var(--gradient-hero)",
+                }}
               />
             </div>
           </div>
@@ -328,16 +358,21 @@ function MemoryPage() {
       <div className="mt-5">
         <button
           onClick={() => setAddOpen((o) => !o)}
-          className="w-full flex items-center justify-between px-4 py-3 glass rounded-2xl active:scale-[0.99] transition-transform"
+          className="w-full flex items-center justify-between px-4 py-3 rounded-2xl active:scale-[0.99] transition-transform"
+          style={{
+            background: "rgba(45, 27, 78, 0.5)",
+            backdropFilter: "blur(16px)",
+            border: "1px solid rgba(255, 255, 255, 0.05)",
+          }}
         >
           <div className="flex items-center gap-2">
-            <Plus className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">Add a memory</span>
+            <Plus className="w-4 h-4" style={{ color: "#d946ef" }} />
+            <span className="text-sm font-medium text-white/90">Add a memory</span>
           </div>
           {addOpen ? (
-            <ChevronUp className="w-4 h-4 text-muted-foreground" />
+            <ChevronUp className="w-4 h-4 text-white/50" />
           ) : (
-            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            <ChevronDown className="w-4 h-4 text-white/50" />
           )}
         </button>
 
@@ -348,23 +383,32 @@ function MemoryPage() {
                 e.preventDefault();
                 if (content.trim()) add.mutate();
               }}
-              className="glass-strong rounded-2xl p-3 space-y-2"
+              className="rounded-2xl p-3 space-y-2"
+              style={{
+                background: "rgba(45, 27, 78, 0.7)",
+                backdropFilter: "blur(24px)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+              }}
             >
               <Input
                 autoFocus
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="e.g. I prefer email replies under 4 sentences"
-                className="bg-transparent border-0 h-11"
+                className="bg-transparent border-0 h-11 text-white placeholder:text-white/30"
               />
               <div className="flex gap-2">
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value as never)}
-                  className="flex-1 h-10 rounded-xl glass bg-transparent px-3 text-sm outline-none"
+                  className="flex-1 h-10 rounded-xl bg-transparent px-3 text-sm outline-none text-white"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.06)",
+                    border: "1px solid rgba(255, 255, 255, 0.05)",
+                  }}
                 >
                   {CATEGORIES.map((c) => (
-                    <option key={c} value={c} className="bg-popover capitalize">
+                    <option key={c} value={c} className="bg-[#2d1b4e] capitalize text-white">
                       {CATEGORY_META[c].label}
                     </option>
                   ))}
@@ -372,8 +416,8 @@ function MemoryPage() {
                 <Button
                   type="submit"
                   disabled={!content.trim() || add.isPending}
-                  className="h-10 rounded-xl px-4 shrink-0"
-                  style={{ background: "var(--gradient-hero)", color: "var(--primary-foreground)" }}
+                  className="h-10 rounded-xl px-4 shrink-0 glow-button"
+                  style={{ background: "var(--gradient-hero)", color: "#ffffff" }}
                 >
                   <Plus className="w-4 h-4 mr-1" /> Save
                 </Button>
@@ -385,12 +429,13 @@ function MemoryPage() {
 
       {/* Search */}
       <div className="relative mt-4 mb-3">
-        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search memory"
-          className="h-10 rounded-2xl glass border-0 pl-9"
+          className="h-10 rounded-2xl border-0 pl-9 text-white placeholder:text-white/30"
+          style={{ background: "rgba(255, 255, 255, 0.06)", backdropFilter: "blur(16px)" }}
         />
       </div>
 
@@ -398,7 +443,11 @@ function MemoryPage() {
       <div className="flex gap-1.5 overflow-x-auto hide-scrollbar pb-2">
         <button
           onClick={() => setActiveFilter("all")}
-          className={`px-3 py-1.5 rounded-full text-[10px] font-medium whitespace-nowrap transition-all ${activeFilter === "all" ? "bg-primary text-primary-foreground" : "glass text-muted-foreground"}`}
+          className={`px-3 py-1.5 rounded-full text-[10px] font-medium whitespace-nowrap transition-all text-white`}
+          style={{
+            background: activeFilter === "all" ? "#d946ef" : "rgba(255, 255, 255, 0.06)",
+            border: "1px solid rgba(255, 255, 255, 0.05)",
+          }}
         >
           All ({memories.length})
         </button>
@@ -406,7 +455,11 @@ function MemoryPage() {
           <button
             key={c}
             onClick={() => setActiveFilter(c)}
-            className={`px-3 py-1.5 rounded-full text-[10px] font-medium capitalize whitespace-nowrap transition-all flex items-center gap-1 ${activeFilter === c ? "bg-primary text-primary-foreground" : "glass text-muted-foreground"}`}
+            className={`px-3 py-1.5 rounded-full text-[10px] font-medium capitalize whitespace-nowrap transition-all flex items-center gap-1 text-white`}
+            style={{
+              background: activeFilter === c ? "#d946ef" : "rgba(255, 255, 255, 0.06)",
+              border: "1px solid rgba(255, 255, 255, 0.05)",
+            }}
           >
             <div className={`w-1.5 h-1.5 rounded-full ${CATEGORY_META[c].bar}`} />
             {CATEGORY_META[c].label} ({stats[c]})
@@ -418,21 +471,25 @@ function MemoryPage() {
       <div className="mt-3 space-y-2">
         {filtered.length === 0 && (
           <div className="text-center py-12">
-            <Brain className="w-8 h-8 mx-auto mb-3 opacity-30" />
+            <Brain className="w-8 h-8 mx-auto mb-3 text-white/20" />
             {search ? (
-              <p className="text-sm text-muted-foreground">No memories match your search.</p>
+              <p className="text-sm text-white/50">No memories match your search.</p>
             ) : (
               <>
-                <p className="text-sm text-muted-foreground mb-1">Nothing remembered yet.</p>
-                <p className="text-[11px] text-muted-foreground/60 mb-5">
+                <p className="text-sm text-white/50 mb-1">Nothing remembered yet.</p>
+                <p className="text-[11px] text-white/40 mb-5">
                   Add a memory above, or seed some examples to see what this looks like.
                 </p>
                 <button
                   onClick={() => seedMemories.mutate()}
                   disabled={seedMemories.isPending}
-                  className="px-4 py-2 glass rounded-xl text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="px-4 py-2 rounded-xl text-sm text-white/70 transition-colors"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.06)",
+                    border: "1px solid rgba(255, 255, 255, 0.05)",
+                  }}
                 >
-                  <Sparkles className="w-3.5 h-3.5 inline mr-1.5" />
+                  <Sparkles className="w-3.5 h-3.5 inline mr-1.5" style={{ color: "#d946ef" }} />
                   Seed example memories
                 </button>
               </>

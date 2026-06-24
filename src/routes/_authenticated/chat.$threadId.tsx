@@ -228,25 +228,38 @@ function ChatPage() {
       </a>
 
       {/* Header */}
-      <header className="sticky top-0 z-30 glass-strong px-4 pt-12 pb-3 flex items-center gap-3 border-b border-white/5">
+      <header
+        className="sticky top-0 z-30 px-4 pt-12 pb-3 flex items-center gap-3 border-b border-white/5"
+        style={{
+          background: "rgba(26, 10, 46, 0.85)",
+          backdropFilter: "blur(32px) saturate(180%)",
+        }}
+      >
         <Link
           to="/"
           aria-label="Back to home"
-          className="w-9 h-9 rounded-full glass flex items-center justify-center -ml-1 active:scale-95 transition-transform"
+          className="w-9 h-9 rounded-full flex items-center justify-center -ml-1 active:scale-95 transition-transform"
+          style={{
+            background: "rgba(255, 255, 255, 0.08)",
+            backdropFilter: "blur(16px)",
+            border: "1px solid rgba(255, 255, 255, 0.06)",
+          }}
         >
-          <ChevronLeft className="w-5 h-5" aria-hidden="true" />
+          <ChevronLeft className="w-5 h-5 text-white/70" aria-hidden="true" />
         </Link>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <div
-              className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-primary"
-              style={{ background: "var(--gradient-orb)" }}
+              className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center"
+              style={{ background: "var(--gradient-hero)" }}
             >
-              <SageLogo size={14} className="text-primary" />
+              <SageLogo size={14} className="text-white" />
             </div>
-            <p className="font-semibold truncate text-sm">{thread?.title ?? "New chat"}</p>
+            <p className="font-semibold truncate text-sm text-white/90">{thread?.title ?? "New chat"}</p>
             {isDemoThread && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-medium shrink-0">
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium shrink-0 text-white"
+                style={{ background: "rgba(217, 70, 239, 0.3)" }}
+              >
                 Demo
               </span>
             )}
@@ -256,15 +269,20 @@ function ChatPage() {
               className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"
               aria-hidden="true"
             />
-            <p className="text-[10px] text-muted-foreground">Multi-model orchestration active</p>
+            <p className="text-[10px] text-white/50">Multi-model orchestration active</p>
           </div>
         </div>
         <button
           onClick={() => copyMessage(messages.map((m) => m.content).join("\n\n"), "all")}
           aria-label="Copy whole conversation"
-          className="w-9 h-9 rounded-full glass flex items-center justify-center active:scale-95 transition-transform"
+          className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-transform"
+          style={{
+            background: "rgba(255, 255, 255, 0.08)",
+            backdropFilter: "blur(16px)",
+            border: "1px solid rgba(255, 255, 255, 0.06)",
+          }}
         >
-          <Copy className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
+          <Copy className="w-4 h-4 text-white/50" aria-hidden="true" />
         </button>
       </header>
 
