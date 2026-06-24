@@ -347,8 +347,8 @@ function AgentsPage() {
             No {filter === "all" ? "" : filter} agents.
           </li>
         )}
-        {filtered.map((r) => {
-          const cfg = STATUS_CONFIG[r.status];
+        {filtered.map((r: any) => {
+          const cfg = STATUS_CONFIG[r.status as keyof typeof STATUS_CONFIG];
           const isExpanded = expanded === r.id;
           const Icon = r.icon ?? Bot;
           return (
@@ -455,8 +455,8 @@ function AgentsPage() {
                         Sub-agents
                       </p>
                       <div className="space-y-1.5">
-                        {r.subAgents.map((sa) => {
-                          const sCfg = STATUS_CONFIG[sa.status];
+                        {r.subAgents.map((sa: any) => {
+                          const sCfg = STATUS_CONFIG[sa.status as keyof typeof STATUS_CONFIG];
                           return (
                             <div
                               key={sa.id}
@@ -509,7 +509,7 @@ function AgentsPage() {
                             History
                           </p>
                           <div className="space-y-1">
-                            {r.history.map((h, i) => (
+                            {r.history.map((h: string, i: number) => (
                               <p key={i} className="text-[10px] text-white/40">
                                 {h}
                               </p>

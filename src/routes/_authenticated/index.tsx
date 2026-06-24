@@ -7,6 +7,7 @@ import { DemoProfileSwitcher } from "@/components/DemoProfileSwitcher";
 import { VoiceWaveAnimation } from "@/components/VoiceWaveAnimation";
 import { useContextualHints, HintBanner } from "@/components/ContextualHints";
 import { SageLogo } from "@/components/SageLogo";
+import sageVoiceOrb from "@/assets/sage-voice-orb.png.asset.json";
 import {
   Plus,
   Search,
@@ -361,6 +362,13 @@ function HomePage() {
             boxShadow: "0 8px 32px -8px rgba(217, 70, 239, 0.4)",
           }}
         >
+          <img
+            src={sageVoiceOrb.url}
+            alt=""
+            aria-hidden="true"
+            className="absolute -right-6 -top-6 w-40 h-40 opacity-70 pointer-events-none select-none"
+            style={{ mixBlendMode: "screen" }}
+          />
           <div className="flex items-start justify-between mb-4">
             <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
               <Mic className="w-5 h-5 text-white" />
