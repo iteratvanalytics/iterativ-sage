@@ -7,6 +7,7 @@ import { DemoProfileSwitcher } from "@/components/DemoProfileSwitcher";
 import { VoiceWaveAnimation } from "@/components/VoiceWaveAnimation";
 import { useContextualHints, HintBanner } from "@/components/ContextualHints";
 import { SageLogo } from "@/components/SageLogo";
+import sageVoiceOrb from "@/assets/sage-voice-orb.png.asset.json";
 import {
   Plus,
   Search,
